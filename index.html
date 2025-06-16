@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>簡易輸入介面</title>
+</head>
+<body>
+  <h2>操作面板</h2>
+
+  <button onclick="sendMessage('問候')">問候</button>
+  <button onclick="sendMessage('回報問題')">回報問題</button>
+  <button onclick="sendMessage('其他')">其他</button>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/你的部署網址/exec";
+
+    function sendMessage(action) {
+      const message = prompt(`請輸入「${action}」的訊息：`);
+      if (message) {
+        fetch(scriptURL, {
+          method: 'POST',
+          body: JSON.stringify({ action, message }),
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(data => alert("訊息已送出！"))
+        .catch(err => alert("發送失敗：" + err));
+      }
+    }
+  </script>
+</body>
+</html>
