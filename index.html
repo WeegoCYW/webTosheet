@@ -12,7 +12,7 @@
   <button onclick="sendMessage('其他')">其他</button>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwu55FnBMvNamtBWvlj6FK4VoOs1gFY5hcmeCrmuOpSl9FWFu8vo02SqryxscXkfi0j/exec";;
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxT_ATKmrq6F-rPOGiR8TwxmtpMMD-EWM_yt5NSqN_EWPJC2RtRUHMDTfNTwl1cphoI/exec";;
 
     function sendMessage(action) {
       const message = prompt(`請輸入「${action}」的訊息：`);
@@ -23,14 +23,21 @@
     
         fetch(scriptURL, {
           method: 'POST',
-          body: formData,
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
+          body: new URLSearchParams({ action, message }),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         })
-        .then(res => res.json())
-        .then(data => alert("訊息已送出！"))
-        .catch(err => alert("發送失敗：" + err));
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          return res.json();
+        })
+        .then(data => {
+          alert("訊息已送出！");
+          console.log("回應資料:", data);
+        })
+        .catch(err => {
+          alert("發送失敗：" + err.message);
+          console.error(err);
+        });
       }
     }
   </script>
