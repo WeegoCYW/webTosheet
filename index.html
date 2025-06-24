@@ -26,18 +26,9 @@
           body: new URLSearchParams({ action, message }),
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         })
-        .then(res => {
-          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-          return res.json();
-        })
-        .then(data => {
-          alert("訊息已送出！");
-          console.log("回應資料:", data);
-        })
-        .catch(err => {
-          alert("發送失敗：" + err.message);
-          console.error(err);
-        });
+        .then(r => r.text())
+        .then(t => console.log("回應:", t))
+        .catch(e => console.error("錯誤:", e));
       }
     }
   </script>
