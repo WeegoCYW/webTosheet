@@ -1,36 +1,296 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <title>簡易輸入介面</title>
+    <meta charset="UTF-8">
+    <title>倉庫管理介面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex; /* 使用 flexbox 進行整體版面 */
+            gap: 20px; /* 主要區塊之間的間距 */
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+
+        .section {
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .main-container-left {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .storage-bins-container {
+            display: flex; /* 使用 flexbox 處理兩個主欄位 */
+            gap: 10px;
+        }
+
+        .bin-column {
+            display: grid; /* 使用 grid 處理每個欄位內的行 */
+            grid-template-rows: repeat(5, 1fr); /* 5 行 */
+            gap: 8px; /* 料桶之間的間距 */
+            width: 200px; /* 根據需要調整 */
+        }
+
+        .bin-header {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .bin-item {
+            border: 1px solid #aaa;
+            padding: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.9em;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 70px; /* 範例固定高度 */
+        }
+
+        .bin-material {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .bin-quantity {
+            color: #555;
+        }
+
+        .raw-materials-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .raw-materials-list li {
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .warehouse-map-container {
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: repeat(5, 60px); /* 5 列用於地圖區塊 */
+            grid-template-rows: repeat(4, 60px); /* 4 行用於地圖區塊 */
+            gap: 5px;
+            width: fit-content;
+        }
+
+        .warehouse-block {
+            border: 1px solid #bbb;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            border-radius: 4px;
+        }
+
+        /* 倉庫地圖區塊的特定定位（如果不是簡單網格） */
+        .warehouse-block.empty {
+            background-color: transparent;
+            border: none;
+        }
+        /* 如果需要特定區塊放置範例，否則依靠網格自動放置 */
+        .w-block-11 { grid-area: 3 / 1 / span 1 / span 1; } /* 範例：第 3 行，第 1 列，跨越 1 行/列 */
+        .w-block-12 { grid-area: 3 / 2 / span 1 / span 1; }
+        /* 如果不是連續網格，您需要為每個區塊定義 grid-area */
+
+
+        .warehouse-block.top-row-1 { grid-column: 1; grid-row: 1; }
+        .warehouse-block.top-row-2 { grid-column: 2; grid-row: 1; }
+        .warehouse-block.top-row-3 { grid-column: 3; grid-row: 1; }
+        /* ... 依此類推用於地圖數字 */
+
+        /* 「紀錄」和「完成」標籤的定位 */
+        .record-label {
+            grid-column: 4; /* 調整欄位 */
+            grid-row: 1; /* 調整行 */
+            text-align: center;
+            font-weight: bold;
+            align-self: end; /* 對齊其網格單元的末端 */
+        }
+        .complete-label {
+            grid-column: 5; /* 調整欄位 */
+            grid-row: 1; /* 調整行 */
+            text-align: center;
+            font-weight: bold;
+            align-self: end;
+        }
+
+        /* 根據倉庫地圖數字的特定版面進行調整 */
+        .warehouse-map-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 60px); /* 根據圖片調整 */
+            grid-template-rows: repeat(4, 60px); /* 根據圖片調整 */
+            gap: 5px;
+            margin-top: 10px; /* 距離標題的空間 */
+        }
+
+        /* 地圖中個別區塊的定位 */
+        .wh-cell-6 { grid-column: 1; grid-row: 1; }
+        .wh-cell-13 { grid-column: 3; grid-row: 1; }
+        .wh-cell-14 { grid-column: 4; grid-row: 1; } /* 這很棘手，圖片暗示了特定的手動放置 */
+        .wh-cell-15 { grid-column: 4; grid-row: 2; }
+        .wh-cell-16 { grid-column: 4; grid-row: 3; }
+        .wh-cell-17 { grid-column: 5; grid-row: 2; }
+        .wh-cell-18 { grid-column: 5; grid-row: 3; }
+        .wh-cell-19 { grid-column: 5; grid-row: 4; }
+        .wh-cell-20 { grid-column: 5; grid-row: 5; } /* 如果有第 5 行 */
+
+        /* 實際內容的佔位符 */
+        .header-title {
+            text-align: center;
+            color: red;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+    </style>
 </head>
 <body>
-  <h2>操作面板</h2>
+    <div class="header-title">(前端-平板顯示輸入)</div>
 
-  <button onclick="sendMessage('問候')">問候</button>
-  <button onclick="sendMessage('回報問題')">回報問題</button>
-  <button onclick="sendMessage('其他')">其他</button>
+    <div class="main-container-left">
+        <div class="section">
+            <h3>存放料桶資料</h3>
+            <div class="storage-bins-container">
+                <div class="bin-column">
+                    <div class="bin-header">1</div>
+                    <div class="bin-item">
+                        <span class="bin-material">1. 111-1 蓬萊</span>
+                        <span class="bin-quantity">5/10 噸</span>
+                    </div>
+                    <div class="bin-item">
+                        <span class="bin-material">1. 111-1 蓬萊</span>
+                        <span class="bin-quantity">5/10 噸</span>
+                    </div>
+                    <div class="bin-item">
+                        <span class="bin-material">1. 111-1 蓬萊</span>
+                        <span class="bin-quantity">5/10 噸</span>
+                    </div>
+                    <div class="bin-item">
+                        <span class="bin-material">1. 111-1 蓬萊</span>
+                        <span class="bin-quantity">5/10 噸</span>
+                    </div>
+                    <div class="bin-item">
+                        <span class="bin-material">1. 111-1 蓬萊</span>
+                        <span class="bin-quantity">5/10 噸</span>
+                    </div>
+                </div>
+                <div class="bin-column">
+                    <div class="bin-header">2</div>
+                    <div class="bin-item">
+                        <span class="bin-material">1. 111-1 蓬萊</span>
+                        <span class="bin-quantity">5/10 噸</span>
+                    </div>
+                    <div class="bin-item">
+                        <span class="bin-material">1. 111-1 蓬萊</span>
+                        <span class="bin-quantity">5/10 噸</span>
+                    </div>
+                    <div class="bin-item">
+                        <span class="bin-material">1. 111-1 蓬萊</span>
+                        <span class="bin-quantity">5/10 噸</span>
+                    </div>
+                    <div class="bin-item">
+                        <span class="bin-material">1. 111-1 蓬萊</span>
+                        <span class="bin-quantity">5/10 噸</span>
+                    </div>
+                    <div class="bin-item">
+                        <span class="bin-material">1. 111-1 蓬萊</span>
+                        <span class="bin-quantity">5/10 噸</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbxuYaRYDtgd9uPK-Eb05-p4YuBh-_fAVzrhsqs-iOqEkLEZAsPKvXbqX1WmV8GMN6GD/exec";;
+        <div class="section">
+            <h3>廠商資料</h3>
+            <p>廠商資訊將在此處顯示</p>
+        </div>
 
-    function sendMessage(action) {
-      const message = prompt(`請輸入「${action}」的訊息：`);
-      if (message) {
-        const formData = new URLSearchParams();
-        formData.append("action", action);
-        formData.append("message", message);
-    
-        fetch(scriptURL, {
-          method: 'POST',
-          body: new URLSearchParams({ action, message }),
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        })
-        .then(r => r.text())
-        .then(t => console.log("回應:", t))
-        .catch(e => console.error("錯誤:", e));
-      }
-    }
-  </script>
+        <div class="section">
+            <h3>原物資料</h3>
+            <ol class="raw-materials-list">
+                <li>1. 111-1蓬萊</li>
+                <li>2. 111-2蓬萊</li>
+                <li>3. 長秈</li>
+                <li>4. 圓秈</li>
+                <li>20. 長秈</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="warehouse-map-container">
+        <h3>倉庫位置分布圖</h3>
+        <div class="warehouse-map-grid">
+            <div class="warehouse-block wh-cell-6">6</div>
+            <div class="warehouse-block wh-cell-1">1</div>
+            <div class="warehouse-block wh-cell-13">13</div>
+            <div class="warehouse-block wh-cell-14">14</div>
+            <div class="warehouse-block wh-cell-15">15</div>
+            <div class="warehouse-block wh-cell-7">7</div>
+            <div class="warehouse-block wh-cell-2">2</div>
+            <div class="warehouse-block empty"></div>
+            <div class="warehouse-block wh-cell-16">16</div>
+            <div class="warehouse-block wh-cell-17">17</div>
+            <div class="warehouse-block wh-cell-8">8</div>
+            <div class="warehouse-block wh-cell-3">3</div>
+            <div class="warehouse-block wh-cell-11">11</div>
+            <div class="warehouse-block wh-cell-12">12</div>
+            <div class="warehouse-block wh-cell-18">18</div>
+            <div class="warehouse-block wh-cell-9">9</div>
+            <div class="warehouse-block wh-cell-4">4</div>
+            <div class="warehouse-block empty"></div>
+            <div class="warehouse-block wh-cell-19">19</div>
+            <div class="warehouse-block empty"></div> <div class="warehouse-block wh-cell-10">10</div>
+            <div class="warehouse-block wh-cell-5">5</div>
+            <div class="warehouse-block empty"></div>
+            <div class="warehouse-block wh-cell-20">20</div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+            <span>紀錄</span>
+            <span>完成</span>
+        </div>
+    </div>
+
+    <script>
+        // 原有的 sendMessage JavaScript 功能
+        const scriptURL = "https://script.google.com/macros/s/AKfycbxuYaRYDtgd9uPK-Eb05-p4YuBh-_fAVzrhsqs-iOqEkLEZAsPKvXbqX1WmV8GMN6GD/exec";
+
+        function sendMessage(action) {
+            const message = prompt(`請輸入「${action}」的訊息：`);
+            if (message) {
+                const formData = new URLSearchParams();
+                formData.append("action", action);
+                formData.append("message", message);
+
+                fetch(scriptURL, {
+                    method: 'POST',
+                    body: new URLSearchParams({ action, message }),
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                })
+                .then(r => r.text())
+                .then(t => console.log("回應:", t))
+                .catch(e => console.error("錯誤:", e));
+            }
+        }
+    </script>
 </body>
 </html>
