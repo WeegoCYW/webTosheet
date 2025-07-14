@@ -35,11 +35,15 @@
             gap: 20px;
             flex: 1; /* 讓左側容器佔據可用空間 */
             min-width: 400px; /* 最小寬度避免過窄 */
+            /* 調整 max-width 以控制整個左側內容的寬度，間接影響按鈕 */
+            max-width: 600px; /* 範例：限制左側主容器的最大寬度 */
         }
 
         .storage-bins-container {
             display: flex; /* 使用 flexbox 處理兩個主欄位 */
             gap: 10px;
+            /* 您可以為整個料桶容器設定一個最大寬度 */
+            /* max-width: 400px; */ /* 範例：可以嘗試在這裡限制，但通常在 bin-column 或 bin-item-button 調整更直接 */
         }
 
         .bin-column {
@@ -47,6 +51,9 @@
             grid-template-rows: repeat(5, 1fr); /* 5 行 */
             gap: 8px; /* 料桶之間的間距 */
             flex: 1; /* 讓欄位平均分配空間 */
+            /* 直接在這裡設定寬度，或設定最大寬度 */
+            max-width: 180px; /* **** 關鍵調整：限制每列的最大寬度 **** */
+            /* width: 180px; */ /* 如果需要固定寬度，可以使用這個 */
         }
 
         .bin-header {
@@ -71,7 +78,11 @@
             height: 70px; /* 範例固定高度 */
             cursor: pointer; /* 顯示為可點擊 */
             transition: background-color 0.2s; /* 添加過渡效果 */
-            width: 100%; /* 讓按鈕填滿父容器 */
+            /* **** 關鍵調整：移除 width: 100%; 或設定固定寬度/最大寬度 **** */
+            /* width: 150px; */ /* 如果您想讓每個按鈕有固定的寬度 */
+            max-width: 100%; /* 確保按鈕不會超出其父容器 */
+            /* 如果移除 width: 100%，按鈕寬度將由內容決定，但可能會因內容過短而過窄 */
+            min-width: 100px; /* **** 確保按鈕不會過窄，這是防止「過窄」的關鍵 **** */
             box-sizing: border-box; /* 包含 padding 和 border 在寬度內 */
         }
 
@@ -162,43 +173,43 @@
                         <span class="bin-quantity">5/10 噸</span>
                     </button>
                     <button class="bin-item-button" data-bin-name="料桶 1-2">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
+                        <span class="bin-material">1. 111-2 長秈</span>
+                        <span class="bin-quantity">3/8 噸</span>
                     </button>
                     <button class="bin-item-button" data-bin-name="料桶 1-3">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
+                        <span class="bin-material">1. 111-3 圓秈</span>
+                        <span class="bin-quantity">7/10 噸</span>
                     </button>
                     <button class="bin-item-button" data-bin-name="料桶 1-4">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
+                        <span class="bin-material">1. 111-4 白米</span>
+                        <span class="bin-quantity">2/5 噸</span>
                     </button>
                     <button class="bin-item-button" data-bin-name="料桶 1-5">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
+                        <span class="bin-material">1. 111-5 糙米</span>
+                        <span class="bin-quantity">1/2 噸</span>
                     </button>
                 </div>
                 <div class="bin-column">
                     <div class="bin-header">2</div>
                     <button class="bin-item-button" data-bin-name="料桶 2-1">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
+                        <span class="bin-material">2. 222-1 麥子</span>
+                        <span class="bin-quantity">4/6 噸</span>
                     </button>
                     <button class="bin-item-button" data-bin-name="料桶 2-2">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
+                        <span class="bin-material">2. 222-2 玉米</span>
+                        <span class="bin-quantity">6/7 噸</span>
                     </button>
                     <button class="bin-item-button" data-bin-name="料桶 2-3">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
+                        <span class="bin-material">2. 222-3 大豆</span>
+                        <span class="bin-quantity">1/3 噸</span>
                     </button>
                     <button class="bin-item-button" data-bin-name="料桶 2-4">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
+                        <span class="bin-material">2. 222-4 小麥</span>
+                        <span class="bin-quantity">8/10 噸</span>
                     </button>
                     <button class="bin-item-button" data-bin-name="料桶 2-5">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
+                        <span class="bin-material">2. 222-5 黑豆</span>
+                        <span class="bin-quantity">2/2 噸</span>
                     </button>
                 </div>
             </div>
@@ -213,25 +224,25 @@
             <h3>原物資料</h3>
             <ol class="raw-materials-list">
                 <li>1. 111-1蓬萊</li>
-                <li>2. 111-2蓬萊</li>
-                <li>3. 長秈</li>
-                <li>4. 圓秈</li>
-                <li>5. 長秈</li>
-                <li>6. 圓秈</li>
-                <li>7. 長秈</li>
-                <li>8. 圓秈</li>
-                <li>9. 長秈</li>
-                <li>10. 圓秈</li>
-                <li>11. 長秈</li>
-                <li>12. 圓秈</li>
-                <li>13. 長秈</li>
-                <li>14. 圓秈</li>
-                <li>15. 長秈</li>
-                <li>16. 圓秈</li>
-                <li>17. 長秈</li>
-                <li>18. 圓秈</li>
-                <li>19. 長秈</li>
-                <li>20. 長秈</li>
+                <li>2. 111-2長秈</li>
+                <li>3. 111-3圓秈</li>
+                <li>4. 111-4白米</li>
+                <li>5. 111-5糙米</li>
+                <li>6. 222-1麥子</li>
+                <li>7. 222-2玉米</li>
+                <li>8. 222-3大豆</li>
+                <li>9. 222-4小麥</li>
+                <li>10. 222-5黑豆</li>
+                <li>11. 333-1紅豆</li>
+                <li>12. 333-2綠豆</li>
+                <li>13. 333-3高粱</li>
+                <li>14. 333-4蕎麥</li>
+                <li>15. 333-5小米</li>
+                <li>16. 444-1咖啡豆</li>
+                <li>17. 444-2可可豆</li>
+                <li>18. 444-3花生</li>
+                <li>19. 444-4芝麻</li>
+                <li>20. 444-5葵花籽</li>
             </ol>
         </div>
     </div>
@@ -276,12 +287,12 @@
         function sendMessage(action, message) {
             if (message) {
                 const formData = new URLSearchParams();
-                formData.append("action", action); // 這裡的 action 會是料桶名稱
-                formData.append("message", message); // 這裡的 message 是使用者輸入的訊息
+                formData.append("action", action);
+                formData.append("message", message);
 
                 fetch(scriptURL, {
                     method: 'POST',
-                    body: formData, // 使用 formData
+                    body: formData,
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
                 })
                 .then(r => r.text())
@@ -290,19 +301,14 @@
             }
         }
 
-        // 獲取所有料桶按鈕
         const binButtons = document.querySelectorAll('.bin-item-button');
 
-        // 為每個按鈕添加點擊事件監聽器
         binButtons.forEach(button => {
             button.addEventListener('click', () => {
-                // 從 data-bin-name 屬性獲取按鈕名稱
                 const binName = button.dataset.binName;
-                // 從使用者獲取訊息
                 const message = prompt(`請輸入「${binName}」的相關訊息：`);
 
-                // 調用 sendMessage 函式，傳遞料桶名稱作為 action，使用者輸入作為 message
-                if (message !== null) { // 如果使用者沒有點擊取消
+                if (message !== null) {
                     sendMessage(binName, message);
                 }
             });
