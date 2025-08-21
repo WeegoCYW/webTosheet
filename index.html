@@ -273,18 +273,22 @@
             }
         });
 
-        // 使用 JavaScript 來設定事件監聽器，避免 ReferenceError
-        hiddenIframe.onload = function() {
-          // 檢查 iframe 是否真的有內容，避免首次載入時觸發
-          if (hiddenIframe.src === "" || hiddenIframe.src === "about:blank") return;
-
-          alert('資料已成功傳送！');
-          modal.style.display = 'none'; // 隱藏彈出視窗
-          dataForm.reset(); // 清空表單
-          
-          // 避免後續重新載入時再次觸發
-          hiddenIframe.src = "about:blank"; 
-        };
+        // 使用 addEventListener 來監聽 iframe 的 load 事件
+        hiddenIframe.addEventListener('load', () => {
+            // 只有在表單提交後才執行
+            if (dataForm.dataset.submitting === 'true') {
+                alert('資料已成功傳送！');
+                modal.style.display = 'none'; // 隱藏彈出視窗
+                dataForm.reset(); // 清空表單
+                dataForm.dataset.submitting = 'false'; // 重設狀態
+            }
+        });
+    
+        // 監聽表單的提交事件，以便在提交時做一些事情
+        dataForm.addEventListener('submit', () => {
+            // 設定一個標記，表示表單正在提交
+            dataForm.dataset.submitting = 'true';
+        });
 
         // // 表單提交事件
         // dataForm.addEventListener('submit', (event) => {
