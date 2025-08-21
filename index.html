@@ -23,8 +23,8 @@
 
         .storage-bins-container {
             display: grid;
-            grid-template-columns: repeat(7, 150px); /* 7列，每列寬度150px */
-            gap: 20px; /* 欄與欄之間的間距 */
+            grid-template-columns: repeat(7, 150px);
+            gap: 20px;
             padding: 20px;
             border: 2px solid #ccc;
             background-color: white;
@@ -37,20 +37,13 @@
             gap: 10px;
         }
 
-        .bin-column-header {
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.2em;
-            margin-bottom: 5px;
-        }
-
         .bin-item {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             width: 100%;
-            height: 100px; /* 統一高度 */
+            height: 100px;
             padding: 10px;
             border: 1px solid #0056b3;
             background-color: #e0f2ff;
@@ -60,7 +53,7 @@
             cursor: pointer;
             transition: background-color 0.2s;
             text-align: center;
-            box-sizing: border-box; /* 確保 padding 和 border 包含在寬度內 */
+            box-sizing: border-box;
         }
 
         .bin-item:hover {
@@ -85,6 +78,82 @@
             color: #555;
             margin-top: 5px;
         }
+
+        /* 新增彈出視窗的樣式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .form-row label {
+            width: 120px;
+            font-weight: bold;
+        }
+
+        .form-row input, .form-row textarea {
+            width: calc(100% - 130px);
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-row input[readonly] {
+            background-color: #e9ecef;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .form-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        #submitBtn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        #cancelBtn {
+            background-color: #dc3545;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -92,315 +161,138 @@
 
     <div class="storage-bins-container">
         <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 6-1">
+            <div class="bin-item" data-bin-name="6-1" data-material="114-1 蓬萊">
                 <h4>6-1</h4>
                 <span class="bin-material">114-1 蓬萊</span>
                 <span class="bin-info">7/02 漲</span>
             </div>
-            <div class="bin-item" data-bin-name="料桶 6-2">
+            <div class="bin-item" data-bin-name="6-2" data-material="114-1 蓬萊">
                 <h4>6-2</h4>
                 <span class="bin-material">114-1 蓬萊</span>
                 <span class="bin-info">7/02 漲</span>
             </div>
         </div>
-        
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 1-1">
-                <h4>1-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 1-2">
-                <h4>1-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
         </div>
 
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 13-1">
-                <h4>13-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 13-2">
-                <h4>13-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 14-1">
-                <h4>14-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 14-2">
-                <h4>14-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 15-1">
-                <h4>15-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 15-2">
-                <h4>15-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-        
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 17-1">
-                <h4>17-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 17-2">
-                <h4>17-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-
-        <div class="bin-column"></div>
-        <div class="bin-column"></div>
-        
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 7-1">
-                <h4>7-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 7-2">
-                <h4>7-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 2-1">
-                <h4>2-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 2-2">
-                <h4>2-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-        
-        <div class="bin-column"></div>
-        <div class="bin-column"></div>
-
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 16-1">
-                <h4>16-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 16-2">
-                <h4>16-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 18-1">
-                <h4>18-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 18-2">
-                <h4>18-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-
-        <div class="bin-column"></div>
-        <div class="bin-column"></div>
-
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 8-1">
-                <h4>8-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 8-2">
-                <h4>8-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 3-1">
-                <h4>3-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 3-2">
-                <h4>3-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 4-1">
-                <h4>4-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 4-2">
-                <h4>4-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-        
-        <div class="bin-column"></div>
-
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 19-1">
-                <h4>19-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 19-2">
-                <h4>19-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 9-1">
-                <h4>9-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 9-2">
-                <h4>9-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 5-1">
-                <h4>5-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 5-2">
-                <h4>5-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 11-1">
-                <h4>11-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 11-2">
-                <h4>11-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 12-1">
-                <h4>12-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 12-2">
-                <h4>12-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-        
-        <div class="bin-column"></div>
-        <div class="bin-column"></div>
-        <div class="bin-column"></div>
-        <div class="bin-column"></div>
-        
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 10-1">
-                <h4>10-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 10-2">
-                <h4>10-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-        </div>
-        
-        <div class="bin-column"></div>
-        <div class="bin-column"></div>
-
-        <div class="bin-column">
-            <div class="bin-item" data-bin-name="料桶 20-1">
-                <h4>20-1</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
-            <div class="bin-item" data-bin-name="料桶 20-2">
-                <h4>20-2</h4>
-                <span class="bin-material">114-1 蓬萊</span>
-                <span class="bin-info">7/02 漲</span>
-            </div>
+    <div id="inputModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle"></h2>
+            <form id="dataForm">
+                <div class="form-row">
+                    <label for="dateInput">日期</label>
+                    <input type="text" id="dateInput" name="日期" placeholder="格式: 2025/07/01">
+                </div>
+                <div class="form-row">
+                    <label for="materialInput">輸入原物料</label>
+                    <input type="text" id="materialInput" name="輸入原物料" readonly>
+                </div>
+                <div class="form-row">
+                    <label for="vendorInput">廠商名稱</label>
+                    <input type="text" id="vendorInput" name="廠商名稱" placeholder="請輸入廠商名稱">
+                </div>
+                <div class="form-row">
+                    <label for="drynessInput">乾燥度</label>
+                    <input type="text" id="drynessInput" name="乾燥度" placeholder="請輸入乾燥度">
+                </div>
+                <div class="form-row">
+                    <label for="gradeInput">等級</label>
+                    <input type="text" id="gradeInput" name="等級" placeholder="請輸入等級">
+                </div>
+                <div class="form-row">
+                    <label for="binInput">料桶</label>
+                    <input type="text" id="binInput" name="料桶" readonly>
+                </div>
+                <div class="form-row">
+                    <label for="weightInput">總重</label>
+                    <input type="text" id="weightInput" name="總重" placeholder="請輸入總重">
+                </div>
+                <div class="form-row">
+                    <label for="capacityInput">容量</label>
+                    <input type="text" id="capacityInput" name="容量" placeholder="請輸入容量">
+                </div>
+                <div class="form-row">
+                    <label for="yieldInput">初估碾米率</label>
+                    <input type="text" id="yieldInput" name="初估碾米率" placeholder="請輸入初估碾米率">
+                </div>
+                <div class="form-row">
+                    <label for="notesTextarea">備註</label>
+                    <textarea id="notesTextarea" name="備註" rows="4" placeholder="在此輸入備註"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancelBtn">取消</button>
+                    <button type="submit" id="submitBtn">完成</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script>
-        const scriptURL = "https://script.google.com/macros/s/AKfycbxuYaRYDtgd9uPK-Eb05-p4YuBh-_fAVzrhsqs-iOqEkLEZAsPKvXbqX1WmV8GMN6GD/exec";
+        const scriptURL = "https://script.google.com/macros/s/AKfycbxuYaRYDtgd9uPK-Eb05-p4YuBh-_fAVzrhsqs-iOqEkLEZAsPKvXbqX1WmV8GMN6GD/exec"; // 請替換為您自己的 Apps Script URL
 
-        function sendMessage(action, message) {
-            if (message) {
-                const formData = new URLSearchParams();
-                formData.append("action", action);
-                formData.append("message", message);
+        // 彈出視窗相關元素
+        const modal = document.getElementById('inputModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const dataForm = document.getElementById('dataForm');
+        const materialInput = document.getElementById('materialInput');
+        const binInput = document.getElementById('binInput');
+        const cancelBtn = document.getElementById('cancelBtn');
 
-                fetch(scriptURL, {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-                })
-                .then(r => r.text())
-                .then(t => console.log("回應:", t))
-                .catch(e => console.error("錯誤:", e));
-            }
-        }
-
-        const binItems = document.querySelectorAll('.bin-item');
-
-        binItems.forEach(item => {
+        // 點擊料桶時顯示彈出視窗
+        document.querySelectorAll('.bin-item').forEach(item => {
             item.addEventListener('click', () => {
                 const binName = item.dataset.binName;
-                const message = prompt(`請輸入「${binName}」的相關訊息：`);
+                const materialName = item.dataset.material;
 
-                if (message !== null) {
-                    sendMessage(binName, message);
+                modalTitle.textContent = `輸入 ${binName} 的資料`;
+                materialInput.value = materialName;
+                binInput.value = binName;
+                modal.style.display = 'flex';
+            });
+        });
+
+        // 取消按鈕，隱藏彈出視窗
+        cancelBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // 點擊視窗外部時隱藏彈出視窗
+        window.addEventListener('click', (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // 表單提交事件
+        dataForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // 防止表單預設提交行為
+
+            const formData = new FormData(dataForm);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            // 這裡可以將 data 物件發送到 Google Apps Script
+            console.log('將要傳送的資料:', data);
+
+            // 實際傳送資料
+            fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
                 }
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('成功:', result);
+                alert('資料已成功傳送！');
+                modal.style.display = 'none'; // 隱藏彈出視窗
+                dataForm.reset(); // 清空表單
+            })
+            .catch(error => {
+                console.error('錯誤:', error);
+                alert('資料傳送失敗！');
             });
         });
     </script>
