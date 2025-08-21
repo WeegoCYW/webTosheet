@@ -265,34 +265,50 @@
         // 表單提交事件
         dataForm.addEventListener('submit', (event) => {
             event.preventDefault(); // 防止表單預設提交行為
-
+    
+            // 這裡將表單資料轉換為 URLSearchParams
             const formData = new FormData(dataForm);
-            const data = {};
+            const urlEncodedData = new URLSearchParams();
             formData.forEach((value, key) => {
-                data[key] = value;
+                urlEncodedData.append(key, value);
             });
-
-            // 這裡可以將 data 物件發送到 Google Apps Script
-            console.log('將要傳送的資料:', data);
-
-            // 實際傳送資料
+    
+            console.log('將要傳送的資料:', Object.fromEntries(urlEncodedData));
+    
             fetch(scriptURL, {
                 method: 'POST',
-                body: JSON.stringify(data),
+                // 使用 urlEncodedData 作為請求主體
+                body: urlEncodedData,
                 headers: {
+                    // 將 Content-Type 設定為 x-www-form-urlencoded
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
             })
-            .then(response => response.json())
-            .then(result => {
-                console.log('成功:', result);
-                alert('資料已成功傳送！');
+            .then(response => {
+                // 由於 Apps Script 可能回傳純文字，這裡改為檢查回應狀態
+                if (response.ok) {
+                    return response.text(); // 成功時讀取文字回應
+                }
+                throw new Error('Network response was not ok.');
+            })
+            .then(text => {
+                console.log('回應:', text);
+                // 嘗試解析回應，如果回傳的是 JSON 則成功，否則也能處理
+                try {
+                    const result = JSON.parse(text);
+                    console.log('成功:', result);
+                    alert('資料已成功傳送！');
+                } catch (e) {
+                    // 如果無法解析為 JSON，但狀態碼正常，也視為成功
+                    console.log('資料已成功傳送，伺服器回傳非JSON格式。');
+                    alert('資料已成功傳送！');
+                }
                 modal.style.display = 'none'; // 隱藏彈出視窗
                 dataForm.reset(); // 清空表單
             })
             .catch(error => {
                 console.error('錯誤:', error);
-                alert('資料傳送失敗！');
+                alert('資料傳送失敗！' + error.message);
             });
         });
     </script>
