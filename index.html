@@ -266,49 +266,40 @@
         dataForm.addEventListener('submit', (event) => {
             event.preventDefault(); // 防止表單預設提交行為
     
-            // 這裡將表單資料轉換為 URLSearchParams
+            // 建立一個 URLSearchParams 物件來處理表單資料
             const formData = new FormData(dataForm);
             const urlEncodedData = new URLSearchParams();
-            formData.forEach((value, key) => {
+            for (const [key, value] of formData.entries()) {
                 urlEncodedData.append(key, value);
-            });
+            }
     
-            console.log('將要傳送的資料:', Object.fromEntries(urlEncodedData));
+            console.log('將要傳送的資料:', Object.fromEntries(urlEncodedData.entries()));
     
             fetch(scriptURL, {
                 method: 'POST',
-                // 使用 urlEncodedData 作為請求主體
-                body: urlEncodedData,
+                body: urlEncodedData.toString(), // 轉換為字串作為請求主體
                 headers: {
                     // 將 Content-Type 設定為 x-www-form-urlencoded
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
             })
             .then(response => {
-                // 由於 Apps Script 可能回傳純文字，這裡改為檢查回應狀態
-                if (response.ok) {
-                    return response.text(); // 成功時讀取文字回應
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
                 }
-                throw new Error('Network response was not ok.');
+                return response.text(); // 預期接收純文字回應
             })
             .then(text => {
-                console.log('回應:', text);
-                // 嘗試解析回應，如果回傳的是 JSON 則成功，否則也能處理
-                try {
-                    const result = JSON.parse(text);
-                    console.log('成功:', result);
-                    alert('資料已成功傳送！');
-                } catch (e) {
-                    // 如果無法解析為 JSON，但狀態碼正常，也視為成功
-                    console.log('資料已成功傳送，伺服器回傳非JSON格式。');
-                    alert('資料已成功傳送！');
-                }
-                modal.style.display = 'none'; // 隱藏彈出視窗
-                dataForm.reset(); // 清空表單
+                // 由於我們接收的是文字回應，可以直接在 console.log 中顯示
+                console.log('伺服器回應:', text);
+                // 成功訊息就在文字本身中
+                alert('資料已成功傳送！');
+                modal.style.display = 'none';
+                dataForm.reset();
             })
             .catch(error => {
                 console.error('錯誤:', error);
-                alert('資料傳送失敗！' + error.message);
+                alert('資料傳送失敗！ ' + error.message);
             });
         });
     </script>
