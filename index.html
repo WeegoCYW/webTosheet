@@ -231,7 +231,7 @@
         </div>
     </div>
 
-    <iframe id="hidden-iframe" name="hidden-iframe" onload="iframeLoaded()"></iframe>
+    <iframe id="hidden-iframe" name="hidden-iframe"></iframe>
 
     <script>
         const scriptURL = "https://script.google.com/macros/s/AKfycbyP28l_2WPm1v-ZKuDDq6hYwig2Dkh1T66Due_jSTA3UVwWxmD_RUjnQ6LZWLudeEtJ/exec"; // 請替換為您自己的 Apps Script URL
@@ -243,6 +243,7 @@
         const materialInput = document.getElementById('materialInput');
         const binInput = document.getElementById('binInput');
         const cancelBtn = document.getElementById('cancelBtn');
+        const hiddenIframe = document.getElementById('hidden-iframe'); // 定義變數
 
         // 點擊料桶時顯示彈出視窗
         document.querySelectorAll('.bin-item').forEach(item => {
@@ -272,19 +273,18 @@
             }
         });
 
-        // 監聽 iframe 的載入事件，當表單提交後觸發
-        function iframeLoaded() {
+        // 使用 JavaScript 來設定事件監聽器，避免 ReferenceError
+        hiddenIframe.onload = function() {
           // 檢查 iframe 是否真的有內容，避免首次載入時觸發
           if (hiddenIframe.src === "" || hiddenIframe.src === "about:blank") return;
 
-          // 這裡可以檢查回應內容，但為了簡化，直接顯示成功訊息
           alert('資料已成功傳送！');
           modal.style.display = 'none'; // 隱藏彈出視窗
           dataForm.reset(); // 清空表單
           
           // 避免後續重新載入時再次觸發
-          hiddenIframe.src = ""; 
-        }
+          hiddenIframe.src = "about:blank"; 
+        };
 
         // // 表單提交事件
         // dataForm.addEventListener('submit', (event) => {
