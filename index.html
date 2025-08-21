@@ -2,61 +2,46 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>倉庫管理介面</title>
+    <title>倉庫管理介面 - 料桶區塊</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            gap: 40px;
             padding: 30px;
             background-color: #f0f0f0;
-            flex-wrap: wrap;
         }
 
         .header-title {
             position: absolute;
             top: 20px;
             text-align: center;
-            color: red;
+            color: black;
             font-size: 1.5em;
         }
 
-        .main-container-left {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        .storage-bins-container {
+            display: grid;
+            grid-template-columns: repeat(7, 150px); /* 7列，每列寬度150px */
+            gap: 20px; /* 欄與欄之間的間距 */
             padding: 20px;
             border: 2px solid #ccc;
             background-color: white;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
-        .section-header {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .storage-bins-container {
-            display: flex;
-            gap: 20px;
-        }
-
         .bin-column {
-            display: grid;
-            grid-template-rows: auto repeat(5, 1fr);
+            display: flex;
+            flex-direction: column;
             gap: 10px;
+        }
+
+        .bin-column-header {
             text-align: center;
             font-weight: bold;
             font-size: 1.2em;
-        }
-
-        .bin-column-content {
-            display: grid;
-            grid-template-rows: repeat(5, 1fr);
-            gap: 10px;
+            margin-bottom: 5px;
         }
 
         .bin-item {
@@ -64,224 +49,325 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            width: 120px;
-            height: 80px;
-            padding: 5px;
-            border: 1px solid #aaa;
-            background-color: #d0d0d0;
+            width: 100%;
+            height: 100px; /* 統一高度 */
+            padding: 10px;
+            border: 1px solid #0056b3;
+            background-color: #e0f2ff;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             font-size: 0.9em;
             cursor: pointer;
             transition: background-color 0.2s;
+            text-align: center;
+            box-sizing: border-box; /* 確保 padding 和 border 包含在寬度內 */
         }
 
         .bin-item:hover {
-            background-color: #c0c0c0;
+            background-color: #cce7ff;
+        }
+
+        .bin-item h4 {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+            color: #004d99;
         }
 
         .bin-material {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .bin-quantity {
-            color: #555;
-        }
-
-        .raw-materials-section {
-            padding: 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .raw-materials-list {
-            list-style: none;
-            padding: 0;
-            font-size: 1.1em;
-            line-height: 1.5;
-        }
-        
-        /* 倉庫地圖版面 */
-        .warehouse-map-container {
-            padding: 20px;
-            border: 2px solid #ccc;
-            background-color: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .warehouse-map-container h3 {
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-
-        .warehouse-map-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 70px);
-            grid-template-rows: repeat(4, 70px);
-            gap: 10px;
-        }
-
-        .warehouse-block {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid #999;
-            background-color: #f0f0f0;
-            font-weight: bold;
-            font-size: 1.2em;
-            border-radius: 5px;
-        }
-
-        .warehouse-block.empty {
-            background-color: transparent;
-            border: none;
-        }
-
-        .map-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .map-buttons span {
-            font-size: 1.2em;
-            font-weight: bold;
+            font-size: 1em;
+            margin: 0;
             color: #333;
+        }
+
+        .bin-info {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="header-title">(前端-平板顯示輸入)</div>
+    <div class="header-title">存放料桶</div>
 
-    <div class="main-container-left">
-        <div class="section">
-            <h3 class="section-header">存放料桶資料</h3>
-            <div class="storage-bins-container">
-                <div class="bin-column">
-                    <div class="bin-header">1</div>
-                    <div class="bin-item" data-bin-name="料桶 1-1">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
-                    </div>
-                    <div class="bin-item" data-bin-name="料桶 1-2">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
-                    </div>
-                    <div class="bin-item" data-bin-name="料桶 1-3">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
-                    </div>
-                    <div class="bin-item" data-bin-name="料桶 1-4">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
-                    </div>
-                    <div class="bin-item" data-bin-name="料桶 1-5">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
-                    </div>
-                </div>
-                <div class="bin-column">
-                    <div class="bin-header">2</div>
-                    <div class="bin-item" data-bin-name="料桶 2-1">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
-                    </div>
-                    <div class="bin-item" data-bin-name="料桶 2-2">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
-                    </div>
-                    <div class="bin-item" data-bin-name="料桶 2-3">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
-                    </div>
-                    <div class="bin-item" data-bin-name="料桶 2-4">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
-                    </div>
-                    <div class="bin-item" data-bin-name="料桶 2-5">
-                        <span class="bin-material">1. 111-1 蓬萊</span>
-                        <span class="bin-quantity">5/10 噸</span>
-                    </div>
-                </div>
+    <div class="storage-bins-container">
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 6-1">
+                <h4>6-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 6-2">
+                <h4>6-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+        
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 1-1">
+                <h4>1-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 1-2">
+                <h4>1-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
             </div>
         </div>
 
-        <div class="section">
-            <h3 class="section-header">廠商資料</h3>
-            <p style="padding: 10px; text-align: center;">廠商資訊將在此處顯示</p>
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 13-1">
+                <h4>13-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 13-2">
+                <h4>13-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
         </div>
 
-        <div class="section raw-materials-section">
-            <h3 class="section-header">原物資料</h3>
-            <ol class="raw-materials-list">
-                <li>1. 111-1蓬萊</li>
-                <li>2. 111-2蓬萊</li>
-                <li>3. 長秈</li>
-                <li>4. 圓秈</li>
-                <li>5. 長秈</li>
-                <li>6. 圓秈</li>
-                <li>7. 長秈</li>
-                <li>8. 圓秈</li>
-                <li>9. 長秈</li>
-                <li>10. 圓秈</li>
-                <li>11. 長秈</li>
-                <li>12. 圓秈</li>
-                <li>13. 長秈</li>
-                <li>14. 圓秈</li>
-                <li>15. 長秈</li>
-                <li>16. 圓秈</li>
-                <li>17. 長秈</li>
-                <li>18. 圓秈</li>
-                <li>19. 長秈</li>
-                <li>20. 長秈</li>
-            </ol>
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 14-1">
+                <h4>14-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 14-2">
+                <h4>14-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
         </div>
-    </div>
 
-    <div class="warehouse-map-container">
-        <h3>倉庫位置分布圖</h3>
-        <div class="warehouse-map-grid">
-            <div class="warehouse-block" style="grid-area: 1 / 1;">6</div>
-            <div class="warehouse-block" style="grid-area: 1 / 2;">1</div>
-            <div class="warehouse-block" style="grid-area: 1 / 3;">13</div>
-            <div class="warehouse-block" style="grid-area: 1 / 4;">14</div>
-            <div class="warehouse-block empty" style="grid-area: 1 / 5;"></div>
-            
-            <div class="warehouse-block" style="grid-area: 2 / 1;">7</div>
-            <div class="warehouse-block" style="grid-area: 2 / 2;">2</div>
-            <div class="warehouse-block empty" style="grid-area: 2 / 3;"></div>
-            <div class="warehouse-block" style="grid-area: 2 / 4;">15</div>
-            <div class="warehouse-block" style="grid-area: 2 / 5;">17</div>
-
-            <div class="warehouse-block" style="grid-area: 3 / 1;">8</div>
-            <div class="warehouse-block" style="grid-area: 3 / 2;">3</div>
-            <div class="warehouse-block" style="grid-area: 3 / 3;">11</div>
-            <div class="warehouse-block" style="grid-area: 3 / 4;">16</div>
-            <div class="warehouse-block" style="grid-area: 3 / 5;">18</div>
-
-            <div class="warehouse-block" style="grid-area: 4 / 1;">9</div>
-            <div class="warehouse-block" style="grid-area: 4 / 2;">4</div>
-            <div class="warehouse-block" style="grid-area: 4 / 3;">12</div>
-            <div class="warehouse-block empty" style="grid-area: 4 / 4;"></div>
-            <div class="warehouse-block" style="grid-area: 4 / 5;">19</div>
-
-            <div class="warehouse-block" style="grid-area: 5 / 1;">10</div>
-            <div class="warehouse-block" style="grid-area: 5 / 2;">5</div>
-            <div class="warehouse-block empty" style="grid-area: 5 / 3;"></div>
-            <div class="warehouse-block empty" style="grid-area: 5 / 4;"></div>
-            <div class="warehouse-block" style="grid-area: 5 / 5;">20</div>
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 15-1">
+                <h4>15-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 15-2">
+                <h4>15-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
         </div>
-        <div class="map-buttons">
-            <span>紀錄</span>
-            <span>完成</span>
+        
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 17-1">
+                <h4>17-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 17-2">
+                <h4>17-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+
+        <div class="bin-column"></div>
+        <div class="bin-column"></div>
+        
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 7-1">
+                <h4>7-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 7-2">
+                <h4>7-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 2-1">
+                <h4>2-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 2-2">
+                <h4>2-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+        
+        <div class="bin-column"></div>
+        <div class="bin-column"></div>
+
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 16-1">
+                <h4>16-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 16-2">
+                <h4>16-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 18-1">
+                <h4>18-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 18-2">
+                <h4>18-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+
+        <div class="bin-column"></div>
+        <div class="bin-column"></div>
+
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 8-1">
+                <h4>8-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 8-2">
+                <h4>8-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 3-1">
+                <h4>3-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 3-2">
+                <h4>3-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 4-1">
+                <h4>4-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 4-2">
+                <h4>4-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+        
+        <div class="bin-column"></div>
+
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 19-1">
+                <h4>19-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 19-2">
+                <h4>19-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 9-1">
+                <h4>9-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 9-2">
+                <h4>9-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 5-1">
+                <h4>5-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 5-2">
+                <h4>5-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 11-1">
+                <h4>11-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 11-2">
+                <h4>11-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 12-1">
+                <h4>12-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 12-2">
+                <h4>12-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+        
+        <div class="bin-column"></div>
+        <div class="bin-column"></div>
+        <div class="bin-column"></div>
+        <div class="bin-column"></div>
+        
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 10-1">
+                <h4>10-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 10-2">
+                <h4>10-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+        </div>
+        
+        <div class="bin-column"></div>
+        <div class="bin-column"></div>
+
+        <div class="bin-column">
+            <div class="bin-item" data-bin-name="料桶 20-1">
+                <h4>20-1</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
+            <div class="bin-item" data-bin-name="料桶 20-2">
+                <h4>20-2</h4>
+                <span class="bin-material">114-1 蓬萊</span>
+                <span class="bin-info">7/02 漲</span>
+            </div>
         </div>
     </div>
 
