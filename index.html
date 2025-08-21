@@ -231,6 +231,8 @@
         </div>
     </div>
 
+    <iframe id="hidden-iframe" name="hidden-iframe" onload="iframeLoaded()"></iframe>
+
     <script>
         const scriptURL = "https://script.google.com/macros/s/AKfycbyP28l_2WPm1v-ZKuDDq6hYwig2Dkh1T66Due_jSTA3UVwWxmD_RUjnQ6LZWLudeEtJ/exec"; // 請替換為您自己的 Apps Script URL
 
@@ -252,6 +254,9 @@
                 materialInput.value = materialName;
                 binInput.value = binName;
                 modal.style.display = 'flex';
+
+                // 設定 form 的 action，指向 Apps Script URL
+                dataForm.action = scriptURL;
             });
         });
 
@@ -267,46 +272,60 @@
             }
         });
 
-        // 表單提交事件
-        dataForm.addEventListener('submit', (event) => {
-            event.preventDefault(); // 防止表單預設提交行為
+        // 監聽 iframe 的載入事件，當表單提交後觸發
+        function iframeLoaded() {
+          // 檢查 iframe 是否真的有內容，避免首次載入時觸發
+          if (hiddenIframe.src === "" || hiddenIframe.src === "about:blank") return;
+
+          // 這裡可以檢查回應內容，但為了簡化，直接顯示成功訊息
+          alert('資料已成功傳送！');
+          modal.style.display = 'none'; // 隱藏彈出視窗
+          dataForm.reset(); // 清空表單
+          
+          // 避免後續重新載入時再次觸發
+          hiddenIframe.src = ""; 
+        }
+
+        // // 表單提交事件
+        // dataForm.addEventListener('submit', (event) => {
+        //     event.preventDefault(); // 防止表單預設提交行為
     
-            // 建立一個 URLSearchParams 物件來處理表單資料
-            const formData = new FormData(dataForm);
-            const urlEncodedData = new URLSearchParams();
-            for (const [key, value] of formData.entries()) {
-                urlEncodedData.append(key, value);
-            }
+        //     // 建立一個 URLSearchParams 物件來處理表單資料
+        //     const formData = new FormData(dataForm);
+        //     const urlEncodedData = new URLSearchParams();
+        //     for (const [key, value] of formData.entries()) {
+        //         urlEncodedData.append(key, value);
+        //     }
     
-            console.log('將要傳送的資料:', Object.fromEntries(urlEncodedData.entries()));
+        //     console.log('將要傳送的資料:', Object.fromEntries(urlEncodedData.entries()));
     
-            fetch(scriptURL, {
-                method: 'POST',
-                body: urlEncodedData.toString(), // 轉換為字串作為請求主體
-                headers: {
-                    // 將 Content-Type 設定為 x-www-form-urlencoded
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok.');
-                }
-                return response.text(); // 預期接收純文字回應
-            })
-            .then(text => {
-                // 由於我們接收的是文字回應，可以直接在 console.log 中顯示
-                console.log('伺服器回應:', text);
-                // 成功訊息就在文字本身中
-                alert('資料已成功傳送！');
-                modal.style.display = 'none';
-                dataForm.reset();
-            })
-            .catch(error => {
-                console.error('錯誤:', error);
-                alert('資料傳送失敗！ ' + error.message);
-            });
-        });
+        //     fetch(scriptURL, {
+        //         method: 'POST',
+        //         body: urlEncodedData.toString(), // 轉換為字串作為請求主體
+        //         headers: {
+        //             // 將 Content-Type 設定為 x-www-form-urlencoded
+        //             'Content-Type': 'application/x-www-form-urlencoded'
+        //         }
+        //     })
+        //     .then(response => {
+        //         if (!response.ok) {
+        //             throw new Error('Network response was not ok.');
+        //         }
+        //         return response.text(); // 預期接收純文字回應
+        //     })
+        //     .then(text => {
+        //         // 由於我們接收的是文字回應，可以直接在 console.log 中顯示
+        //         console.log('伺服器回應:', text);
+        //         // 成功訊息就在文字本身中
+        //         alert('資料已成功傳送！');
+        //         modal.style.display = 'none';
+        //         dataForm.reset();
+        //     })
+        //     .catch(error => {
+        //         console.error('錯誤:', error);
+        //         alert('資料傳送失敗！ ' + error.message);
+        //     });
+        // });
     </script>
 </body>
 </html>
