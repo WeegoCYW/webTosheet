@@ -536,17 +536,20 @@
             binMapContainer.innerHTML = ''; // 清空容器
             const numCols = 12; // 12 列
             const numRows = 5;  // 5 行
-            // 將資料轉換為以「桶子代號」為鍵的 Map，方便查詢
-            // const dataMap = new Map(binMapData.map(item => [item['桶子代號'], item]));
-        
+            
+            // 遍歷 12x5 的網格位置
             for (let row = 1; row <= numRows; row++) {
                 for (let col = 1; col <= numCols; col++) {
                     const binName = `${col}-${row}`;
-                    const binData = dataMap.get(binName);
-                    
-                    // let binElement;
-                    // 如果該儲存格有值（不為 null 或空字串），則渲染
-                    if (binName) {
+                    // 在 binMapData 中尋找對應的料桶資料
+                    // 由於 binMapData 是一個二維陣列，我們需要透過 row 和 col 來取得值
+                    // 修正為從 binMapData 中獲取正確的資料
+                    // 注意：這裡假設 binMapData 的索引是從 0 開始
+                    const sheetValue = (binMapData[row - 1] && binMapData[row - 1][col - 1]) ? binMapData[row - 1][col - 1] : null;
+        
+                    // 判斷該位置是否有料桶名稱
+                    // 如果 sheetValue 存在且與 binName 相符，則渲染有內容的料桶
+                    if (sheetValue === binName) {
                         const binElement = document.createElement('div');
                         binElement.className = 'bin-item';
                         binElement.innerHTML = `<h4>${binName}</h4>`;
@@ -560,6 +563,7 @@
                         binMapContainer.appendChild(binElement);
                     }
                     // 否則，如果為空，不創建任何元素，留白
+                    // 程式碼中不需要 else 區塊，因為我們就是要留白
                 }
             }
         }
