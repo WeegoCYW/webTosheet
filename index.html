@@ -537,39 +537,29 @@
             const numCols = 12; // 12 列
             const numRows = 5;  // 5 行
             // 將資料轉換為以「桶子代號」為鍵的 Map，方便查詢
-            const dataMap = new Map(binMapData.map(item => [item['桶子代號'], item]));
+            // const dataMap = new Map(binMapData.map(item => [item['桶子代號'], item]));
         
             for (let row = 1; row <= numRows; row++) {
                 for (let col = 1; col <= numCols; col++) {
                     const binName = `${col}-${row}`;
                     const binData = dataMap.get(binName);
                     
-                    let binElement;
-                    // 新增判斷：當 binData 存在且「貨品」欄位不為空字串或 null 時，才視為有資料
-                    // `!!binData['貨品']` 能夠將空字串、null、undefined 等轉換為 false
-                    if (binData && !!binData['貨品']) {
-                        binElement = document.createElement('div');
+                    // let binElement;
+                    // 如果該儲存格有值（不為 null 或空字串），則渲染
+                    if (binName) {
+                        const binElement = document.createElement('div');
                         binElement.className = 'bin-item';
-                    
-                    // 檢查「貨品」欄位是否存在，如果存在則顯示
-                    const material = binData['貨品'] ? binData['貨品'] : '無貨品資料';
-                    binElement.innerHTML = `<h4>${binName}</h4><p>${material}</p>`;
+                        binElement.innerHTML = `<h4>${binName}</h4>`;
                         
-                        // 將資料存入 dataset 以備後續使用
-                        Object.keys(binData).forEach(key => {
-                            binElement.dataset[key.replace(/\s+/g, '')] = binData[key];
+                        binElement.dataset.binName = binName;
+                        binElement.addEventListener('click', () => {
+                            openModal(binElement);
                         });
-                    } else {
-                        binElement = document.createElement('div');
-                        binElement.className = 'empty-bin';
-                        binElement.textContent = binName;
+                        
+                        // 將元素加入到容器中
+                        binMapContainer.appendChild(binElement);
                     }
-                    
-                    binElement.dataset.binName = binName;
-                    binElement.addEventListener('click', () => {
-                        openModal(binElement);
-                    });
-                    binMapContainer.appendChild(binElement);
+                    // 否則，如果為空，不創建任何元素，留白
                 }
             }
         }
