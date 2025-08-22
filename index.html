@@ -4,104 +4,133 @@
     <meta charset="UTF-8">
     <title>倉庫管理介面 - 料桶區塊</title>
     <style>
+        /* ==================================================================== */
+        /* 倉庫介面全域與主要佈局樣式 */
+        /* ==================================================================== */
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Noto Sans TC', 'Arial', sans-serif; /* 推薦使用思源黑體以獲得更好的中文字體顯示 */
             display: flex;
+            flex-direction: column;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             padding: 30px;
             background-color: #f0f0f0;
+            margin: 0;
         }
-
+        
         .header-title {
-            position: absolute;
-            top: 20px;
-            text-align: center;
-            color: black;
+            margin: 20px 0;
             font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
         }
-
+        
+        /* 整個介面主容器，包含所有料桶區塊 */
         .main-layout {
             display: flex;
-            justify-content: center;
-            gap: 20px;
+            flex-direction: column;
+            align-items: center;
+            gap: 50px; /* 增加不同料桶區塊之間的間距 */
+            width: 100%;
         }
         
+        /* 存放料桶區塊的外層容器 */
         .storage-bins-container {
             display: flex;
-            gap: 30px;
+            justify-content: center; /* 讓內容居中 */
+            gap: 20px;
             padding: 20px;
-            border: 2px solid #ccc;
-            background-color: white;
+            border: 2px solid #a0d4ff; /* 藍色邊框，與圖片風格一致 */
+            border-radius: 10px;
+            background-color: #f8fbff; /* 淺藍色背景 */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            align-items: flex-start;
+            width: fit-content; /* 寬度根據內容自動調整 */
         }
         
-        .bin-group {
-            display: flex;
-            flex-direction: column;
+        /* 料桶網格容器 - 用於圖片中12*5的佈局 */
+        .bin-grid-layout {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr); /* 創建12等分的欄位 */
             gap: 10px;
+            width: 100%;
+            padding: 20px;
+            border: 2px solid #a0d4ff;
+            border-radius: 10px;
+            background-color: #f8fbff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
         }
         
-        .bin-column {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+        /* ==================================================================== */
+        /* 料桶項目樣式 */
+        /* ==================================================================== */
         
+        /* 料桶項目通用樣式 */
         .bin-item {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            width: 100px;
-            height: 100px;
+            min-width: 80px; /* 確保最小寬度 */
+            height: 100px; /* 固定高度 */
             padding: 10px;
-            border: 1px solid #0056b3;
-            background-color: #e0f2ff;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
             font-size: 0.9em;
-            cursor: pointer;
-            transition: background-color 0.2s;
             text-align: center;
             box-sizing: border-box;
-            color: #333;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
         }
         
-        .bin-item:hover {
-            background-color: #cce7ff;
+        /* 已有內容的料桶 */
+        .bin-item.occupied {
+            background-color: #a0d4ff; /* 淡藍色，與圖片相似 */
+            border: 1px solid #007bff;
+            color: #003366;
         }
-
+        
+        .bin-item.occupied:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
         .bin-item h4 {
-            font-size: 1.1em;
+            font-size: 1.2em;
             font-weight: bold;
             margin: 0 0 5px 0;
-            color: #004d99;
-        }
-
-        .bin-material {
-            font-size: 1em;
-            margin: 0;
-            color: #333;
-        }
-
-        .bin-info {
-            font-size: 0.9em;
-            color: #555;
-            margin-top: 5px;
         }
         
-        .bin-vendor {
-            font-size: 0.8em;
-            color: #777;
-            margin-top: 2px;
+        .bin-material, .bin-info, .bin-vendor {
+            font-size: 0.9em;
+            margin-top: 3px;
+            color: #333;
         }
-
+        
+        /* 空料桶樣式 */
+        .bin-item.empty {
+            background-color: #e9f5ff; /* 淺藍色，比有內容的更淡 */
+            border: 1px dashed #a0d4ff;
+            color: #a0d4ff;
+            font-size: 1.2em;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .bin-item.empty:hover {
+            background-color: #dbeaff;
+        }
+        
+        /* ==================================================================== */
+        /* 彈出視窗 (Modal) 與表單樣式 (與您原有的基本一致，微調以增強視覺效果) */
+        /* ==================================================================== */
+        
         .modal {
             display: none;
             position: fixed;
-            z-index: 1;
+            z-index: 100;
             left: 0;
             top: 0;
             width: 100%;
@@ -110,7 +139,7 @@
             justify-content: center;
             align-items: center;
         }
-
+        
         .modal-content {
             background-color: #fff;
             padding: 20px;
@@ -119,99 +148,76 @@
             max-width: 600px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-
+        
         .modal-content h2 {
             text-align: center;
             margin-bottom: 20px;
         }
-
+        
         .form-row {
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap;
             align-items: center;
             margin-bottom: 15px;
         }
-
         .form-row label {
             width: 120px;
-            font-weight: bold;
-            flex-shrink: 0; /* 防止標籤被壓縮 */
+            flex-shrink: 0;
+        }
+        .input-group {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+        }
+        .input-group input, .input-group select, .form-row textarea {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
         
-        .input-group {
-            display: flex;
-            flex: 1; 
-            gap: 10px; 
-        }
-
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box; 
-        }
-
-        .form-row input[readonly] {
-            background-color: #e9ecef;
-        }
-
-        .form-row textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            resize: vertical;
-        }
-
         .form-actions {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
             margin-top: 20px;
         }
-
         .form-actions button {
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1em;
         }
-
+        
         #submitBtn {
             background-color: #28a745;
             color: white;
         }
-
-        #cancelBtn {
+        #cancelBtn, #deleteBtn {
             background-color: #dc3545;
             color: white;
         }
-
-        #hidden-iframe {
-            display: none;
-        }
-
-        /* 新增等待畫面樣式 */
+        
+        /* ==================================================================== */
+        /* 等待畫面樣式 */
+        /* ==================================================================== */
+        
         #loadingOverlay {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(255, 255, 255, 0.8);
-            display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
         }
         
         .loading-spinner {
-            border: 8px solid #f3f3f3; /* 淺灰色 */
-            border-top: 8px solid #3498db; /* 藍色 */
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
             border-radius: 50%;
             width: 60px;
             height: 60px;
@@ -222,41 +228,6 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-
-        .new-bins-area {
-            margin-top: 50px; /* 增加與上方區塊的間距 */
-            text-align: center;
-        }
-        
-        .new-storage-bins-container {
-            padding: 20px;
-            border: 2px solid #ccc;
-            background-color: white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 1600px;
-            margin-top: 20px;
-        }
-        
-        .bin-grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr); /* 創建 12 等分寬度的欄 */
-            gap: 15px; /* 格子間的間距 */
-        }
-        
-        .empty-bin {
-            width: 100%;
-            height: 100px;
-            background-color: #f0f8ff; /* 淺藍色背景，表示空置 */
-            border: 1px dashed #a0c3d9; /* 虛線邊框，與實體料桶區分 */
-            border-radius: 5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #a0c3d9;
-            font-weight: bold;
-            font-size: 1.2em;
         }
     </style>
 </head>
