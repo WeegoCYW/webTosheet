@@ -13,41 +13,6 @@
             background-color: #f0f0f0;
         }
 
-        /* 新增：載入中介面樣式 */
-        #loadingOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8); /* 半透明白色背景 */
-            display: none; /* 預設隱藏 */
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 1000; /* 確保它在最上層 */
-        }
-        
-        .spinner {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #3498db;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 2s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* 新增：禁用按鈕樣式 */
-        .disabled-button {
-            pointer-events: none;
-            opacity: 0.5;
-        }
-
         .header-title {
             position: absolute;
             top: 20px;
@@ -170,13 +135,13 @@
         .form-row label {
             width: 120px;
             font-weight: bold;
-            flex-shrink: 0;
+            flex-shrink: 0; /* 防止標籤被壓縮 */
         }
         
         .input-group {
             display: flex;
-            flex: 1;
-            gap: 10px;
+            flex: 1; 
+            gap: 10px; 
         }
 
         .input-group input, .input-group select {
@@ -184,7 +149,7 @@
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            box-sizing: border-box;
+            box-sizing: border-box; 
         }
 
         .form-row input[readonly] {
@@ -224,14 +189,13 @@
             background-color: #dc3545;
             color: white;
         }
+
+        #hidden-iframe {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <div id="loadingOverlay">
-        <div class="spinner"></div>
-        <p>資料處理中，請稍候...</p>
-    </div>
-
     <div class="header-title">存放料桶</div>
 
     <div class="main-layout">
@@ -509,7 +473,7 @@
     <div id="inputModal" class="modal">
         <div class="modal-content">
             <h2 id="modalTitle"></h2>
-            <form id="dataForm">
+            <form id="dataForm" method="POST" target="hidden-iframe">
                 <div class="form-row">
                     <label for="dateInput">日期</label>
                     <div class="input-group">
@@ -584,7 +548,9 @@
             </form>
         </div>
     </div>
-    
+
+    <iframe id="hidden-iframe" name="hidden-iframe" style="display: none;"></iframe>
+
     <script>
         const scriptURL = "https://script.google.com/macros/s/AKfycbwE1UGU5b2tJJ5epkBzY6R7Lm5mlx2-IkDQtAKO6Lqe2ilvmDAh-0gVDmLuQuy3TfX6/exec";
         const optionsURL = "https://script.google.com/macros/s/AKfycbwE1UGU5b2tJJ5epkBzY6R7Lm5mlx2-IkDQtAKO6Lqe2ilvmDAh-0gVDmLuQuy3TfX6/exec"; // 請替換為您的 Apps Script doGet 網址
@@ -592,9 +558,8 @@
         const modal = document.getElementById('inputModal');
         const modalTitle = document.getElementById('modalTitle');
         const dataForm = document.getElementById('dataForm');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const submitButton = document.getElementById('submitBtn');
 
+        // 定義需要從 Apps Script 獲取選項的欄位
         const googleSheetFields = [
             { input: 'materialInput', select: 'materialSelect', key: '原物料' },
             { input: 'vendorInput', select: 'vendorSelect', key: '廠商名稱' },
@@ -606,82 +571,36 @@
             { input: 'yieldInput', select: 'yieldSelect', key: '初估碾米率' }
         ];
 
+        // 獨立處理日期欄位，不與 Google Sheet 串聯
         const dateInput = document.getElementById('dateInput');
         const dateSelect = document.getElementById('dateSelect');
+        
         const cancelBtn = document.getElementById('cancelBtn');
+        const hiddenIframe = document.getElementById('hidden-iframe'); 
+        
+        dataForm.action = scriptURL;
 
-        // 新增：顯示載入圖層
-        function showLoading() {
-            loadingOverlay.style.display = 'flex';
-        }
-
-        // 新增：隱藏載入圖層
-        function hideLoading() {
-            loadingOverlay.style.display = 'none';
-        }
-
-        // 修改：使用 async/await 函式來獲取選項
-        async function fetchOptions() {
-            showLoading(); // 開始載入時顯示圖層
-            try {
-                const response = await fetch(optionsURL);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok.');
-                }
-                const data = await response.json();
-                
-                if (data.error) {
-                    alert('無法載入選項：' + data.error);
-                } else {
+        function fetchOptions() {
+            fetch(optionsURL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Fetched options:', data);
                     googleSheetFields.forEach(field => {
                         const selectElement = document.getElementById(field.select);
                         if (selectElement && data[field.key]) {
                             populateDropdown(selectElement, data[field.key]);
                         }
                     });
-                    console.log('選項已成功載入。');
-                }
-            } catch (error) {
-                console.error('Fetch error:', error);
-                alert('載入選項時發生錯誤，請稍後再試。');
-            } finally {
-                hideLoading(); // 載入結束後隱藏圖層
-            }
-        }
-
-        // 新增：使用 async/await 處理表單提交
-        async function submitForm(event) {
-            event.preventDefault();
-
-            showLoading(); // 開始提交時顯示圖層
-            submitButton.classList.add('disabled-button'); // 禁用按鈕
-
-            const formData = new FormData(dataForm);
-            const formDataObject = Object.fromEntries(formData.entries());
-            
-            try {
-                const response = await fetch(scriptURL, {
-                    method: 'POST',
-                    body: JSON.stringify(formDataObject),
-                    headers: { 'Content-Type': 'application/json' }
+                })
+                .catch(error => {
+                    console.error('Error fetching options:', error);
+                    alert('無法載入下拉選單選項。');
                 });
-                
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    alert('資料已成功傳送！');
-                    modal.style.display = 'none';
-                    dataForm.reset();
-                } else {
-                    alert('表單提交失敗：' + result.message);
-                }
-            } catch (error) {
-                console.error('提交錯誤：', error);
-                alert('表單提交時發生錯誤，請檢查您的網路連線。');
-            } finally {
-                hideLoading(); // 提交結束後隱藏圖層
-                submitButton.classList.remove('disabled-button'); // 啟用按鈕
-            }
         }
 
         // 填充下拉選單的通用函式
@@ -756,9 +675,9 @@
                     if (selectElement) selectElement.value = '';
                 });
 
+                // 呼叫獨立的函式來生成日期下拉選單
                 populateDateDropdown(10);
-                
-                // 呼叫新的載入函式，並在其中處理載入中圖示
+                // 呼叫函式來獲取 Google Sheet 上的選項
                 fetchOptions();
                 
                 modalTitle.textContent = `輸入 ${binName} 的資料`;
@@ -794,8 +713,18 @@
             }
         });
 
-        // 移除 iframe 相關程式碼，改用 fetch
-        dataForm.addEventListener('submit', submitForm);
+        hiddenIframe.addEventListener('load', () => {
+            if (dataForm.dataset.submitting === 'true') {
+                alert('資料已成功傳送！');
+                modal.style.display = 'none';
+                dataForm.reset();
+                dataForm.dataset.submitting = 'false';
+            }
+        });
+
+        dataForm.addEventListener('submit', () => {
+            dataForm.dataset.submitting = 'true';
+        });
     </script>
 </body>
 </html>
