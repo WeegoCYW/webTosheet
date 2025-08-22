@@ -258,72 +258,7 @@
     <div class="new-bins-area">
         <div class="header-title">料桶分布圖</div>
         <div class="new-storage-bins-container">
-            <div class="bin-grid">
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-            </div>
+            <div class="bin-grid" id="binMapContainer"></div>
         </div>
     </div>
 
@@ -576,6 +511,68 @@
                 });
             }
         });
+
+        // =========================================================
+        // 新增：動態生成料桶邏輯
+        // =========================================================
+    
+        function generateAndRenderBins() {
+            const binMapContainer = document.getElementById('binMapContainer');
+            if (!binMapContainer) {
+                console.error('找不到 ID 為 "binMapContainer" 的元素。');
+                return;
+            }
+    
+            binMapContainer.innerHTML = ''; // 清空容器
+            const numCols = 12; // 12 列
+            const numRows = 5;  // 5 行
+    
+            for (let row = 1; row <= numRows; row++) {
+                for (let col = 1; col <= numCols; col++) {
+                    const binName = `${col}-${row}`;
+                    const binElement = document.createElement('div');
+                    binElement.className = 'empty-bin'; // 預設都是空的
+                    binElement.textContent = binName;
+                    binElement.dataset.binName = binName;
+    
+                    // 每個料桶綁定點擊事件
+                    binElement.addEventListener('click', () => {
+                        openModal(binElement);
+                    });
+                    binMapContainer.appendChild(binElement);
+                }
+            }
+        }
+    
+        // =========================================================
+        // 頁面載入時觸發
+        // =========================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            generateAndRenderBins();
+        });
+    
+        function openModal(itemElement) {
+            dataForm.reset();
+            populateDateDropdown(10);
+            fetchOptions();
+            
+            const binName = itemElement.dataset.binName;
+            modalTitle.textContent = `輸入 ${binName} 的資料`;
+            
+            document.getElementById('binInput').value = binName;
+            
+            if (itemElement.dataset.date) {
+                dateInput.value = itemElement.dataset.date;
+            }
+            if (itemElement.dataset.material) {
+                document.getElementById('materialInput').value = itemElement.dataset.material;
+            }
+            if (itemElement.dataset.vendor) {
+                document.getElementById('vendorInput').value = itemElement.dataset.vendor;
+            }
+    
+            modal.style.display = 'flex';
+        }
     
         // 為日期下拉選單添加事件監聽器
         dateSelect.addEventListener('change', () => {
