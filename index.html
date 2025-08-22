@@ -559,9 +559,8 @@
         const modalTitle = document.getElementById('modalTitle');
         const dataForm = document.getElementById('dataForm');
 
-        // 定義所有輸入框和下拉選單的映射
-        const formFields = [
-            { input: 'dateInput', select: 'dateSelect', key: '日期' },
+        // 定義需要從 Apps Script 獲取選項的欄位
+        const googleSheetFields = [
             { input: 'materialInput', select: 'materialSelect', key: '原物料' },
             { input: 'vendorInput', select: 'vendorSelect', key: '廠商名稱' },
             { input: 'drynessInput', select: 'drynessSelect', key: '乾燥度' },
@@ -572,6 +571,10 @@
             { input: 'yieldInput', select: 'yieldSelect', key: '初估碾米率' }
         ];
 
+        // 獨立處理日期欄位，不與 Google Sheet 串聯
+        const dateInput = document.getElementById('dateInput');
+        const dateSelect = document.getElementById('dateSelect');
+        
         const cancelBtn = document.getElementById('cancelBtn');
         const hiddenIframe = document.getElementById('hidden-iframe'); 
         
@@ -587,7 +590,7 @@
                 })
                 .then(data => {
                     console.log('Fetched options:', data);
-                    formFields.forEach(field => {
+                    googleSheetFields.forEach(field => {
                         const selectElement = document.getElementById(field.select);
                         if (selectElement && data[field.key]) {
                             populateDropdown(selectElement, data[field.key]);
@@ -600,6 +603,7 @@
                 });
         }
 
+        // 填充下拉選單的通用函式
         function populateDropdown(selectElement, optionsArray) {
             selectElement.innerHTML = '';
             const defaultOption = document.createElement('option');
@@ -614,9 +618,35 @@
                 selectElement.appendChild(option);
             });
         }
+
+        // 專門用於填充日期下拉選單的函式
+        function populateDateDropdown(daysCount) {
+            const dateSelect = document.getElementById('dateSelect');
+            dateSelect.innerHTML = '';
+            
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = '▼';
+            dateSelect.appendChild(defaultOption);
+
+            const today = new Date();
+            for (let i = 0; i < daysCount; i++) {
+                const date = new Date();
+                date.setDate(today.getDate() - i);
+                const year = date.getFullYear();
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                const formattedDate = `${year}/${month}/${day}`;
+
+                const option = document.createElement('option');
+                option.value = formattedDate;
+                option.textContent = formattedDate;
+                dateSelect.appendChild(option);
+            }
+        }
         
-        // 為每個下拉選單添加事件監聽器
-        formFields.forEach(field => {
+        // 為每個下拉選單添加事件監聽器，將值填入對應的輸入框
+        googleSheetFields.forEach(field => {
             const selectElement = document.getElementById(field.select);
             const inputElement = document.getElementById(field.input);
             if (selectElement && inputElement) {
@@ -626,27 +656,37 @@
             }
         });
 
+        // 為日期下拉選單添加事件監聽器
+        dateSelect.addEventListener('change', () => {
+            dateInput.value = dateSelect.value;
+        });
+
         document.querySelectorAll('.bin-item').forEach(item => {
             item.addEventListener('click', () => {
                 const binName = item.dataset.binName;
-                fetchOptions();
-                modalTitle.textContent = `輸入 ${binName} 的資料`;
                 
                 // 清空所有輸入框和下拉選單的選擇狀態
-                formFields.forEach(field => {
+                dateInput.value = '';
+                dateSelect.value = '';
+                googleSheetFields.forEach(field => {
                     const inputElement = document.getElementById(field.input);
                     const selectElement = document.getElementById(field.select);
                     if (inputElement) inputElement.value = '';
                     if (selectElement) selectElement.value = '';
                 });
 
+                // 呼叫獨立的函式來生成日期下拉選單
+                populateDateDropdown(10);
+                // 呼叫函式來獲取 Google Sheet 上的選項
+                fetchOptions();
+                
+                modalTitle.textContent = `輸入 ${binName} 的資料`;
+                
                 // 根據按鈕資料自動填入
-                const dateInput = document.getElementById('dateInput');
-                const binInput = document.getElementById('binInput');
                 const materialInput = document.getElementById('materialInput');
                 const vendorInput = document.getElementById('vendorInput');
-                
-                // 特別處理料桶編號，它會同時出現在 input 和 select 列表中
+                const binInput = document.getElementById('binInput');
+
                 binInput.value = binName;
                 
                 if (item.dataset.date) {
