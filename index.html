@@ -351,11 +351,11 @@
     <script>
         const scriptURL = "https://script.google.com/macros/s/AKfycbyoOjbxKGltE03V0nhN0ObcojbB7uGXY3v-KtYghDdjyztkZufBbczdG8W9zQdg89xw/exec";
         const optionsURL = "https://script.google.com/macros/s/AKfycbyoOjbxKGltE03V0nhN0ObcojbB7uGXY3v-KtYghDdjyztkZufBbczdG8W9zQdg89xw/exec"; // 請替換為您的 Apps Script doGet 網址
-    
+        
         const modal = document.getElementById('inputModal');
         const modalTitle = document.getElementById('modalTitle');
         const dataForm = document.getElementById('dataForm');
-    
+        
         // 定義需要從 Apps Script 獲取選項的欄位
         const googleSheetFields = [
             { input: 'materialInput', select: 'materialSelect', key: '原物料' },
@@ -375,21 +375,24 @@
         const cancelBtn = document.getElementById('cancelBtn');
         const hiddenIframe = document.getElementById('hidden-iframe');
         const loadingOverlay = document.getElementById('loadingOverlay');
-    
+        const binMapContainer = document.getElementById('binMapContainer'); // 新增：獲取料桶容器元素
+        
         dataForm.action = scriptURL;
-    
+        
         // --- 新增：用來儲存已載入的選項資料 ---
-        let cachedOptions = null; 
+        let cachedOptions = null;
+        // --- 新增：用來儲存已載入的料桶地圖資料 ---
+        let cachedBinMapData = null;
         // ------------------------------------
-    
+        
         function showLoading() {
             loadingOverlay.style.display = 'flex';
         }
-    
+        
         function hideLoading() {
             loadingOverlay.style.display = 'none';
         }
-    
+        
         // 將所有下拉式選單設為禁用
         function disableSelects() {
             googleSheetFields.forEach(field => {
@@ -400,7 +403,7 @@
             });
             dateSelect.disabled = true;
         }
-    
+        
         // 將所有下拉式選單恢復為啟用
         function enableSelects() {
             googleSheetFields.forEach(field => {
@@ -411,7 +414,7 @@
             });
             dateSelect.disabled = false;
         }
-    
+        
         // 根據傳入的資料填充下拉式選單
         function populateAllDropdowns(data) {
             googleSheetFields.forEach(field => {
@@ -421,7 +424,7 @@
                 }
             });
         }
-    
+        
         // 修改 fetchOptions 函式，檢查緩存
         function fetchOptions() {
             // 如果已經有緩存資料，直接使用
@@ -431,11 +434,11 @@
                 enableSelects();
                 return Promise.resolve(); // 返回一個已解決的 Promise，以保持鏈式調用的一致性
             }
-    
+        
             // 如果沒有緩存資料，才發送請求
             showLoading();
             disableSelects();
-    
+        
             return fetch(optionsURL) // 返回 Promise
                 .then(response => {
                     if (!response.ok) {
@@ -445,8 +448,14 @@
                 })
                 .then(data => {
                     console.log('Fetched new options, caching them.');
-                    cachedOptions = data; // 儲存資料到緩存
-                    populateAllDropdowns(data);
+                    // 檢查 data 格式，確保它包含下拉選單資料
+                    if (data.dropdownOptions) {
+                        cachedOptions = data.dropdownOptions; // 儲存資料到緩存
+                        populateAllDropdowns(data.dropdownOptions);
+                    } else {
+                        cachedOptions = data;
+                        populateAllDropdowns(data);
+                    }
                     enableSelects();
                     hideLoading();
                 })
@@ -458,7 +467,7 @@
                     throw error; // 重新拋出錯誤，讓呼叫方知道失敗了
                 });
         }
-    
+        
         // 填充下拉選單的通用函式
         function populateDropdown(selectElement, optionsArray) {
             selectElement.innerHTML = '';
@@ -466,7 +475,7 @@
             defaultOption.value = '';
             defaultOption.textContent = '▼';
             selectElement.appendChild(defaultOption);
-    
+        
             optionsArray.forEach(optionText => {
                 const option = document.createElement('option');
                 option.value = optionText;
@@ -474,7 +483,7 @@
                 selectElement.appendChild(option);
             });
         }
-    
+        
         // 專門用於填充日期下拉選單的函式
         function populateDateDropdown(daysCount) {
             const dateSelect = document.getElementById('dateSelect');
@@ -484,7 +493,7 @@
             defaultOption.value = '';
             defaultOption.textContent = '▼';
             dateSelect.appendChild(defaultOption);
-    
+        
             const today = new Date();
             for (let i = 0; i < daysCount; i++) {
                 const date = new Date();
@@ -493,7 +502,7 @@
                 const month = (date.getMonth() + 1).toString().padStart(2, '0');
                 const day = date.getDate().toString().padStart(2, '0');
                 const formattedDate = `${year}/${month}/${day}`;
-    
+        
                 const option = document.createElement('option');
                 option.value = formattedDate;
                 option.textContent = formattedDate;
@@ -501,41 +510,41 @@
             }
         }
         
-        // 為每個下拉選單添加事件監聽器，將值填入對應的輸入框
-        googleSheetFields.forEach(field => {
-            const selectElement = document.getElementById(field.select);
-            const inputElement = document.getElementById(field.input);
-            if (selectElement && inputElement) {
-                selectElement.addEventListener('change', () => {
-                    inputElement.value = selectElement.value;
-                });
-            }
-        });
-
         // =========================================================
-        // 新增：動態生成料桶邏輯
+        // 修改：動態生成料桶邏輯，現在可以根據資料渲染
         // =========================================================
-    
-        function generateAndRenderBins() {
-            const binMapContainer = document.getElementById('binMapContainer');
+        function generateAndRenderBins(binMapData = []) {
             if (!binMapContainer) {
                 console.error('找不到 ID 為 "binMapContainer" 的元素。');
                 return;
             }
-    
+        
             binMapContainer.innerHTML = ''; // 清空容器
             const numCols = 12; // 12 列
             const numRows = 5;  // 5 行
-    
+            const dataMap = new Map(binMapData.map(item => [item['桶子代號'], item]));
+        
             for (let row = 1; row <= numRows; row++) {
                 for (let col = 1; col <= numCols; col++) {
                     const binName = `${col}-${row}`;
-                    const binElement = document.createElement('div');
-                    binElement.className = 'empty-bin'; // 預設都是空的
-                    binElement.textContent = binName;
+                    const binData = dataMap.get(binName);
+                    
+                    let binElement;
+                    if (binData && binData['貨品']) {
+                        binElement = document.createElement('div');
+                        binElement.className = 'bin-item';
+                        binElement.innerHTML = `<h4>${binName}</h4>`;
+                        
+                        Object.keys(binData).forEach(key => {
+                            binElement.dataset[key.replace(/\s+/g, '')] = binData[key];
+                        });
+                    } else {
+                        binElement = document.createElement('div');
+                        binElement.className = 'empty-bin';
+                        binElement.textContent = binName;
+                    }
+                    
                     binElement.dataset.binName = binName;
-    
-                    // 每個料桶綁定點擊事件
                     binElement.addEventListener('click', () => {
                         openModal(binElement);
                     });
@@ -543,14 +552,53 @@
                 }
             }
         }
-    
+        
         // =========================================================
-        // 頁面載入時觸發
+        // 新增：用 fetch 從後端獲取地圖資料的函式
+        // =========================================================
+        function fetchBinMapData() {
+            showLoading();
+            return fetch(optionsURL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.binMapData) {
+                        cachedBinMapData = data.binMapData;
+                        return data.binMapData;
+                    }
+                    // 如果後端返回格式不是物件，直接使用 data
+                    cachedBinMapData = data;
+                    return data;
+                })
+                .catch(error => {
+                    console.error('Error fetching bin map data:', error);
+                    throw error;
+                })
+                .finally(() => {
+                    hideLoading();
+                });
+        }
+        
+        // =========================================================
+        // 修改：頁面載入時，先嘗試從後端讀取地圖資料，失敗則使用備用方案
         // =========================================================
         document.addEventListener('DOMContentLoaded', () => {
-            generateAndRenderBins();
+            fetchBinMapData()
+                .then(binMapData => {
+                    console.log('成功載入地圖資料，渲染地圖。');
+                    generateAndRenderBins(binMapData);
+                })
+                .catch(() => {
+                    console.log('無法從後端讀取地圖資料，渲染備用空地圖。');
+                    alert('無法從 Google 表單載入地圖資料，將顯示空白地圖。');
+                    generateAndRenderBins(); // 呼叫無參數版本，生成空網格
+                });
         });
-    
+        
         function openModal(itemElement) {
             dataForm.reset();
             populateDateDropdown(10);
@@ -570,15 +618,17 @@
             if (itemElement.dataset.vendor) {
                 document.getElementById('vendorInput').value = itemElement.dataset.vendor;
             }
-    
+        
             modal.style.display = 'flex';
         }
-    
+        
         // 為日期下拉選單添加事件監聽器
         dateSelect.addEventListener('change', () => {
             dateInput.value = dateSelect.value;
         });
-    
+        
+        // 刪除此段：動態生成的元素不需要在 DOMContentLoaded 後再綁定事件
+        /*
         document.querySelectorAll('.bin-item').forEach(item => {
             item.addEventListener('click', () => {
                 const binName = item.dataset.binName;
@@ -592,7 +642,7 @@
                     if (inputElement) inputElement.value = '';
                     if (selectElement) selectElement.value = '';
                 });
-    
+                
                 // 呼叫獨立的函式來生成日期下拉選單
                 populateDateDropdown(10);
                 
@@ -605,7 +655,7 @@
                 const materialInput = document.getElementById('materialInput');
                 const vendorInput = document.getElementById('vendorInput');
                 const binInput = document.getElementById('binInput');
-    
+        
                 binInput.value = binName;
                 
                 if (item.dataset.date) {
@@ -621,17 +671,21 @@
                 modal.style.display = 'flex';
             });
         });
-    
+        */
+        
         cancelBtn.addEventListener('click', () => {
             modal.style.display = 'none';
         });
-    
+        
         window.addEventListener('click', (event) => {
             if (event.target == modal) {
                 modal.style.display = 'none';
             }
         });
-    
+        
+        // =========================================================
+        // 修改：表單提交成功後重新載入地圖
+        // =========================================================
         hiddenIframe.addEventListener('load', () => {
             if (dataForm.dataset.submitting === 'true') {
                 loadingOverlay.style.display = 'none';
@@ -639,9 +693,21 @@
                 modal.style.display = 'none';
                 dataForm.reset();
                 dataForm.dataset.submitting = 'false';
+                
+                // 提交成功後，重新獲取並渲染地圖資料
+                fetchBinMapData()
+                    .then(binMapData => {
+                        generateAndRenderBins(binMapData);
+                    })
+                    .catch(error => {
+                        console.error('資料已成功提交，但無法重新載入地圖。', error);
+                        alert('資料已成功提交，但無法重新載入地圖。');
+                        // 即使重新載入失敗，也要至少渲染空地圖
+                        generateAndRenderBins();
+                    });
             }
         });
-    
+        
         dataForm.addEventListener('submit', () => {
             dataForm.dataset.submitting = 'true';
             loadingOverlay.style.display = 'flex';
