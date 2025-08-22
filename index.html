@@ -122,28 +122,14 @@
         
         /* 空料桶樣式 */
         .empty-bin {
-            height: 100px; /* 固定高度 */
-            padding: 10px;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            background-color: #e9f5ff; /* 淺藍色，比有內容的更淡 */
+            border: 1px dashed #a0d4ff;
+            color: #a0d4ff;
             font-size: 1.2em;
-            text-align: center;
-            box-sizing: border-box;
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-            
-            /* 關鍵修正：移除背景色、邊框和陰影，使其看起來是「空白」 */
-            background-color: transparent;
-            border: 2px dashed #a0d4ff; /* 使用虛線邊框來顯示格子 */
-            box-shadow: none;
-            color: #a0d4ff; /* 讓文字顏色與邊框一致 */
         }
         
         .empty-bin:hover {
-            background-color: #dbeaff; /* 滑鼠移入時才顯示背景色 */
+            background-color: #dbeaff;
         }
         
         /* ==================================================================== */
@@ -525,7 +511,7 @@
         }
         
         // =========================================================
-        // 修正：動態生成料桶邏輯，現在可以根據資料的「有無」來渲染
+        // 修改：動態生成料桶邏輯，現在可以根據資料渲染
         // =========================================================
         function generateAndRenderBins(binMapData = []) {
             if (!binMapContainer) {
@@ -536,36 +522,33 @@
             binMapContainer.innerHTML = ''; // 清空容器
             const numCols = 12; // 12 列
             const numRows = 5;  // 5 行
-            
-            // 遍歷 12x5 的網格位置
+            const dataMap = new Map(binMapData.map(item => [item['桶子代號'], item]));
+        
             for (let row = 1; row <= numRows; row++) {
                 for (let col = 1; col <= numCols; col++) {
                     const binName = `${col}-${row}`;
+                    const binData = dataMap.get(binName);
                     
-                    // 根據您的 Google Sheet 截圖，Apps Script 返回的應該是一個二維陣列
-                    // 例如：[['1-1', '2-1', ...], ['1-2', '2-2', ...], ...]
-                    const sheetValue = (binMapData[row - 1] && binMapData[row - 1][col - 1]) ? binMapData[row - 1][col - 1] : null;
-        
-                    // 判斷該儲存格是否有值（不為 null 或空字串）
-                    // 如果有值，則渲染一個「空的」料桶
-                    if (sheetValue) { 
-                        const binElement = document.createElement('div');
+                    let binElement;
+                    if (binData && binData['貨品']) {
+                        binElement = document.createElement('div');
+                        binElement.className = 'bin-item';
+                        binElement.innerHTML = `<h4>${binName}</h4>`;
                         
-                        // 根據您的需求，只要不為空就渲染 `.empty-bin`
-                        binElement.className = 'empty-bin';
-                        binElement.innerHTML = `<h4>${sheetValue}</h4>`;
-                        
-                        // 在這裡我們不關心 `sheetValue` 具體是什麼內容
-                        // 而是它是否存在
-                        binElement.dataset.binName = sheetValue;
-                        binElement.addEventListener('click', () => {
-                            openModal(binElement);
+                        Object.keys(binData).forEach(key => {
+                            binElement.dataset[key.replace(/\s+/g, '')] = binData[key];
                         });
-                        
-                        // 將元素加入到容器中
-                        binMapContainer.appendChild(binElement);
+                    } else {
+                        binElement = document.createElement('div');
+                        binElement.className = 'empty-bin';
+                        binElement.textContent = binName;
                     }
-                    // 如果為空，則不做任何事，實現留白
+                    
+                    binElement.dataset.binName = binName;
+                    binElement.addEventListener('click', () => {
+                        openModal(binElement);
+                    });
+                    binMapContainer.appendChild(binElement);
                 }
             }
         }
@@ -587,11 +570,9 @@
                         cachedBinMapData = data.binMapData;
                         return data.binMapData;
                     }
-                    // // 如果後端返回格式不是物件，直接使用 data
-                    // cachedBinMapData = data;
-                    // return data;
-                    // 否則返回一個空陣列
-                    return [];
+                    // 如果後端返回格式不是物件，直接使用 data
+                    cachedBinMapData = data;
+                    return data;
                 })
                 .catch(error => {
                     console.error('Error fetching bin map data:', error);
@@ -645,6 +626,52 @@
         dateSelect.addEventListener('change', () => {
             dateInput.value = dateSelect.value;
         });
+        
+        // 刪除此段：動態生成的元素不需要在 DOMContentLoaded 後再綁定事件
+        /*
+        document.querySelectorAll('.bin-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const binName = item.dataset.binName;
+                
+                // 清空所有輸入框和下拉選單的選擇狀態
+                dateInput.value = '';
+                dateSelect.value = '';
+                googleSheetFields.forEach(field => {
+                    const inputElement = document.getElementById(field.input);
+                    const selectElement = document.getElementById(field.select);
+                    if (inputElement) inputElement.value = '';
+                    if (selectElement) selectElement.value = '';
+                });
+                
+                // 呼叫獨立的函式來生成日期下拉選單
+                populateDateDropdown(10);
+                
+                // 呼叫函式來獲取 Google Sheet 上的選項
+                fetchOptions();
+                
+                modalTitle.textContent = `輸入 ${binName} 的資料`;
+                
+                // 根據按鈕資料自動填入
+                const materialInput = document.getElementById('materialInput');
+                const vendorInput = document.getElementById('vendorInput');
+                const binInput = document.getElementById('binInput');
+        
+                binInput.value = binName;
+                
+                if (item.dataset.date) {
+                    dateInput.value = item.dataset.date;
+                }
+                if (item.dataset.material) {
+                    materialInput.value = item.dataset.material;
+                }
+                if (item.dataset.vendor) {
+                    vendorInput.value = item.dataset.vendor;
+                }
+                
+                modal.style.display = 'flex';
+            });
+        });
+        */
         
         cancelBtn.addEventListener('click', () => {
             modal.style.display = 'none';
