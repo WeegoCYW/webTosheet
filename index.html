@@ -525,7 +525,7 @@
         }
         
         // =========================================================
-        // 修改：動態生成料桶邏輯，現在可以根據資料渲染
+        // 修正：動態生成料桶邏輯，現在可以根據資料的「有無」來渲染
         // =========================================================
         function generateAndRenderBins(binMapData = []) {
             if (!binMapContainer) {
@@ -541,20 +541,23 @@
             for (let row = 1; row <= numRows; row++) {
                 for (let col = 1; col <= numCols; col++) {
                     const binName = `${col}-${row}`;
-                    // 在 binMapData 中尋找對應的料桶資料
-                    // 由於 binMapData 是一個二維陣列，我們需要透過 row 和 col 來取得值
-                    // 修正為從 binMapData 中獲取正確的資料
-                    // 注意：這裡假設 binMapData 的索引是從 0 開始
+                    
+                    // 根據您的 Google Sheet 截圖，Apps Script 返回的應該是一個二維陣列
+                    // 例如：[['1-1', '2-1', ...], ['1-2', '2-2', ...], ...]
                     const sheetValue = (binMapData[row - 1] && binMapData[row - 1][col - 1]) ? binMapData[row - 1][col - 1] : null;
         
-                    // 判斷該位置是否有料桶名稱
-                    // 如果 sheetValue 存在且與 binName 相符，則渲染有內容的料桶
-                    if (sheetValue === binName) {
+                    // 判斷該儲存格是否有值（不為 null 或空字串）
+                    // 如果有值，則渲染一個「空的」料桶
+                    if (sheetValue) { 
                         const binElement = document.createElement('div');
-                        binElement.className = 'bin-item';
-                        binElement.innerHTML = `<h4>${binName}</h4>`;
                         
-                        binElement.dataset.binName = binName;
+                        // 根據您的需求，只要不為空就渲染 `.empty-bin`
+                        binElement.className = 'empty-bin';
+                        binElement.innerHTML = `<h4>${sheetValue}</h4>`;
+                        
+                        // 在這裡我們不關心 `sheetValue` 具體是什麼內容
+                        // 而是它是否存在
+                        binElement.dataset.binName = sheetValue;
                         binElement.addEventListener('click', () => {
                             openModal(binElement);
                         });
@@ -562,8 +565,7 @@
                         // 將元素加入到容器中
                         binMapContainer.appendChild(binElement);
                     }
-                    // 否則，如果為空，不創建任何元素，留白
-                    // 程式碼中不需要 else 區塊，因為我們就是要留白
+                    // 如果為空，則不做任何事，實現留白
                 }
             }
         }
