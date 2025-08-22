@@ -589,11 +589,11 @@
     <script>
         const scriptURL = "https://script.google.com/macros/s/AKfycbwE1UGU5b2tJJ5epkBzY6R7Lm5mlx2-IkDQtAKO6Lqe2ilvmDAh-0gVDmLuQuy3TfX6/exec";
         const optionsURL = "https://script.google.com/macros/s/AKfycbwE1UGU5b2tJJ5epkBzY6R7Lm5mlx2-IkDQtAKO6Lqe2ilvmDAh-0gVDmLuQuy3TfX6/exec"; // 請替換為您的 Apps Script doGet 網址
-
+    
         const modal = document.getElementById('inputModal');
         const modalTitle = document.getElementById('modalTitle');
         const dataForm = document.getElementById('dataForm');
-
+        
         // 定義需要從 Apps Script 獲取選項的欄位
         const googleSheetFields = [
             { input: 'materialInput', select: 'materialSelect', key: '原物料' },
@@ -605,18 +605,51 @@
             { input: 'capacityInput', select: 'capacitySelect', key: '容量' },
             { input: 'yieldInput', select: 'yieldSelect', key: '初估碾米率' }
         ];
-
+    
         // 獨立處理日期欄位，不與 Google Sheet 串聯
         const dateInput = document.getElementById('dateInput');
         const dateSelect = document.getElementById('dateSelect');
         
         const cancelBtn = document.getElementById('cancelBtn');
-        const hiddenIframe = document.getElementById('hidden-iframe'); 
-        const loadingOverlay = document.getElementById('loadingOverlay'); // 新增這行
-        
+        const hiddenIframe = document.getElementById('hidden-iframe');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+    
         dataForm.action = scriptURL;
-
+    
+        function showLoading() {
+            loadingOverlay.style.display = 'flex';
+        }
+    
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+    
+        // 將所有下拉式選單設為禁用
+        function disableSelects() {
+            googleSheetFields.forEach(field => {
+                const selectElement = document.getElementById(field.select);
+                if (selectElement) {
+                    selectElement.disabled = true;
+                }
+            });
+            dateSelect.disabled = true;
+        }
+    
+        // 將所有下拉式選單恢復為啟用
+        function enableSelects() {
+            googleSheetFields.forEach(field => {
+                const selectElement = document.getElementById(field.select);
+                if (selectElement) {
+                    selectElement.disabled = false;
+                }
+            });
+            dateSelect.disabled = false;
+        }
+    
         function fetchOptions() {
+            showLoading(); // 開始載入時顯示等待畫面
+            disableSelects(); // 載入時禁用下拉選單
+    
             fetch(optionsURL)
                 .then(response => {
                     if (!response.ok) {
@@ -632,13 +665,19 @@
                             populateDropdown(selectElement, data[field.key]);
                         }
                     });
+                    // 載入完成後啟用下拉選單
+                    enableSelects();
+                    hideLoading(); // 載入完成後隱藏等待畫面
                 })
                 .catch(error => {
                     console.error('Error fetching options:', error);
                     alert('無法載入下拉選單選項。');
+                    // 載入失敗也需要啟用下拉選單
+                    enableSelects();
+                    hideLoading(); // 載入失敗也隱藏等待畫面
                 });
         }
-
+    
         // 填充下拉選單的通用函式
         function populateDropdown(selectElement, optionsArray) {
             selectElement.innerHTML = '';
@@ -646,7 +685,7 @@
             defaultOption.value = '';
             defaultOption.textContent = '▼';
             selectElement.appendChild(defaultOption);
-
+    
             optionsArray.forEach(optionText => {
                 const option = document.createElement('option');
                 option.value = optionText;
@@ -654,7 +693,7 @@
                 selectElement.appendChild(option);
             });
         }
-
+    
         // 專門用於填充日期下拉選單的函式
         function populateDateDropdown(daysCount) {
             const dateSelect = document.getElementById('dateSelect');
@@ -664,7 +703,7 @@
             defaultOption.value = '';
             defaultOption.textContent = '▼';
             dateSelect.appendChild(defaultOption);
-
+    
             const today = new Date();
             for (let i = 0; i < daysCount; i++) {
                 const date = new Date();
@@ -673,7 +712,7 @@
                 const month = (date.getMonth() + 1).toString().padStart(2, '0');
                 const day = date.getDate().toString().padStart(2, '0');
                 const formattedDate = `${year}/${month}/${day}`;
-
+    
                 const option = document.createElement('option');
                 option.value = formattedDate;
                 option.textContent = formattedDate;
@@ -691,12 +730,12 @@
                 });
             }
         });
-
+    
         // 為日期下拉選單添加事件監聽器
         dateSelect.addEventListener('change', () => {
             dateInput.value = dateSelect.value;
         });
-
+    
         document.querySelectorAll('.bin-item').forEach(item => {
             item.addEventListener('click', () => {
                 const binName = item.dataset.binName;
@@ -710,9 +749,10 @@
                     if (inputElement) inputElement.value = '';
                     if (selectElement) selectElement.value = '';
                 });
-
+    
                 // 呼叫獨立的函式來生成日期下拉選單
                 populateDateDropdown(10);
+                
                 // 呼叫函式來獲取 Google Sheet 上的選項
                 fetchOptions();
                 
@@ -722,7 +762,7 @@
                 const materialInput = document.getElementById('materialInput');
                 const vendorInput = document.getElementById('vendorInput');
                 const binInput = document.getElementById('binInput');
-
+    
                 binInput.value = binName;
                 
                 if (item.dataset.date) {
@@ -738,30 +778,30 @@
                 modal.style.display = 'flex';
             });
         });
-
+    
         cancelBtn.addEventListener('click', () => {
             modal.style.display = 'none';
         });
-
+    
         window.addEventListener('click', (event) => {
             if (event.target == modal) {
                 modal.style.display = 'none';
             }
         });
-
+    
         hiddenIframe.addEventListener('load', () => {
             if (dataForm.dataset.submitting === 'true') {
-                loadingOverlay.style.display = 'none'; // 在成功後隱藏等待畫面
+                loadingOverlay.style.display = 'none';
                 alert('資料已成功傳送！');
                 modal.style.display = 'none';
                 dataForm.reset();
                 dataForm.dataset.submitting = 'false';
             }
         });
-
+    
         dataForm.addEventListener('submit', () => {
             dataForm.dataset.submitting = 'true';
-            loadingOverlay.style.display = 'flex'; // 在提交時顯示等待畫面
+            loadingOverlay.style.display = 'flex';
         });
     </script>
 </body>
