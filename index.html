@@ -593,7 +593,7 @@
         const modal = document.getElementById('inputModal');
         const modalTitle = document.getElementById('modalTitle');
         const dataForm = document.getElementById('dataForm');
-        
+    
         // 定義需要從 Apps Script 獲取選項的欄位
         const googleSheetFields = [
             { input: 'materialInput', select: 'materialSelect', key: '原物料' },
@@ -615,6 +615,10 @@
         const loadingOverlay = document.getElementById('loadingOverlay');
     
         dataForm.action = scriptURL;
+    
+        // --- 新增：用來儲存已載入的選項資料 ---
+        let cachedOptions = null; 
+        // ------------------------------------
     
         function showLoading() {
             loadingOverlay.style.display = 'flex';
@@ -646,11 +650,31 @@
             dateSelect.disabled = false;
         }
     
-        function fetchOptions() {
-            showLoading(); // 開始載入時顯示等待畫面
-            disableSelects(); // 載入時禁用下拉選單
+        // 根據傳入的資料填充下拉式選單
+        function populateAllDropdowns(data) {
+            googleSheetFields.forEach(field => {
+                const selectElement = document.getElementById(field.select);
+                if (selectElement && data[field.key]) {
+                    populateDropdown(selectElement, data[field.key]);
+                }
+            });
+        }
     
-            fetch(optionsURL)
+        // 修改 fetchOptions 函式，檢查緩存
+        function fetchOptions() {
+            // 如果已經有緩存資料，直接使用
+            if (cachedOptions) {
+                console.log('Using cached options.');
+                populateAllDropdowns(cachedOptions);
+                enableSelects();
+                return Promise.resolve(); // 返回一個已解決的 Promise，以保持鏈式調用的一致性
+            }
+    
+            // 如果沒有緩存資料，才發送請求
+            showLoading();
+            disableSelects();
+    
+            return fetch(optionsURL) // 返回 Promise
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok.');
@@ -658,23 +682,18 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Fetched options:', data);
-                    googleSheetFields.forEach(field => {
-                        const selectElement = document.getElementById(field.select);
-                        if (selectElement && data[field.key]) {
-                            populateDropdown(selectElement, data[field.key]);
-                        }
-                    });
-                    // 載入完成後啟用下拉選單
+                    console.log('Fetched new options, caching them.');
+                    cachedOptions = data; // 儲存資料到緩存
+                    populateAllDropdowns(data);
                     enableSelects();
-                    hideLoading(); // 載入完成後隱藏等待畫面
+                    hideLoading();
                 })
                 .catch(error => {
                     console.error('Error fetching options:', error);
                     alert('無法載入下拉選單選項。');
-                    // 載入失敗也需要啟用下拉選單
                     enableSelects();
-                    hideLoading(); // 載入失敗也隱藏等待畫面
+                    hideLoading();
+                    throw error; // 重新拋出錯誤，讓呼叫方知道失敗了
                 });
         }
     
