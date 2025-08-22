@@ -522,6 +522,7 @@
             binMapContainer.innerHTML = ''; // 清空容器
             const numCols = 12; // 12 列
             const numRows = 5;  // 5 行
+            // 將資料轉換為以「桶子代號」為鍵的 Map，方便查詢
             const dataMap = new Map(binMapData.map(item => [item['桶子代號'], item]));
         
             for (let row = 1; row <= numRows; row++) {
@@ -530,11 +531,17 @@
                     const binData = dataMap.get(binName);
                     
                     let binElement;
-                    if (binData && binData['貨品']) {
+                    // 新增判斷：當 binData 存在且「貨品」欄位不為空字串或 null 時，才視為有資料
+                    // `!!binData['貨品']` 能夠將空字串、null、undefined 等轉換為 false
+                    if (binData && !!binData['貨品']) {
                         binElement = document.createElement('div');
                         binElement.className = 'bin-item';
-                        binElement.innerHTML = `<h4>${binName}</h4>`;
+                    
+                    // 檢查「貨品」欄位是否存在，如果存在則顯示
+                    const material = binData['貨品'] ? binData['貨品'] : '無貨品資料';
+                    binElement.innerHTML = `<h4>${binName}</h4><p>${material}</p>`;
                         
+                        // 將資料存入 dataset 以備後續使用
                         Object.keys(binData).forEach(key => {
                             binElement.dataset[key.replace(/\s+/g, '')] = binData[key];
                         });
@@ -570,9 +577,11 @@
                         cachedBinMapData = data.binMapData;
                         return data.binMapData;
                     }
-                    // 如果後端返回格式不是物件，直接使用 data
-                    cachedBinMapData = data;
-                    return data;
+                    // // 如果後端返回格式不是物件，直接使用 data
+                    // cachedBinMapData = data;
+                    // return data;
+                    // 否則返回一個空陣列
+                    return [];
                 })
                 .catch(error => {
                     console.error('Error fetching bin map data:', error);
