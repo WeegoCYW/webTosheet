@@ -135,26 +135,34 @@
         .form-row label {
             width: 120px;
             font-weight: bold;
-        }
-
-        /* 新增的容器，用於包裹輸入框和下拉選單 */
-        .input-group {
-            display: flex;
-            flex: 1; /* 讓容器佔據剩餘空間 */
-            gap: 10px; /* 輸入框和下拉選單之間的間距 */
+            flex-shrink: 0; /* 防止標籤被壓縮 */
         }
         
-        /* 讓 input 和 select 都能填滿空間 */
+        .input-group {
+            display: flex;
+            flex: 1; 
+            gap: 10px; 
+        }
+
         .input-group input, .input-group select {
             width: 100%;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            box-sizing: border-box; /* 確保 padding 不會影響寬度 */
+            box-sizing: border-box; 
         }
 
         .form-row input[readonly] {
             background-color: #e9ecef;
+        }
+
+        .form-row textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            resize: vertical;
         }
 
         .form-actions {
@@ -468,7 +476,10 @@
             <form id="dataForm" method="POST" target="hidden-iframe">
                 <div class="form-row">
                     <label for="dateInput">日期</label>
-                    <input type="text" id="dateInput" name="日期" placeholder="格式: 2025/07/01">
+                    <div class="input-group">
+                        <input type="text" id="dateInput" name="日期" placeholder="格式: 2025/07/01">
+                        <select id="dateSelect"></select>
+                    </div>
                 </div>
                 <div class="form-row">
                     <label for="materialInput">輸入原物料</label>
@@ -500,19 +511,31 @@
                 </div>
                 <div class="form-row">
                     <label for="binInput">料桶</label>
-                    <input type="text" id="binInput" name="料桶" readonly>
+                    <div class="input-group">
+                        <input type="text" id="binInput" name="料桶" placeholder="請輸入或選擇料桶">
+                        <select id="binSelect"></select>
+                    </div>
                 </div>
                 <div class="form-row">
                     <label for="weightInput">總重</label>
-                    <input type="text" id="weightInput" name="總重" placeholder="請輸入總重">
+                    <div class="input-group">
+                        <input type="text" id="weightInput" name="總重" placeholder="請輸入或選擇總重">
+                        <select id="weightSelect"></select>
+                    </div>
                 </div>
                 <div class="form-row">
                     <label for="capacityInput">容量</label>
-                    <input type="text" id="capacityInput" name="容量" placeholder="請輸入容量">
+                    <div class="input-group">
+                        <input type="text" id="capacityInput" name="容量" placeholder="請輸入或選擇容量">
+                        <select id="capacitySelect"></select>
+                    </div>
                 </div>
                 <div class="form-row">
                     <label for="yieldInput">初估碾米率</label>
-                    <input type="text" id="yieldInput" name="初估碾米率" placeholder="請輸入初估碾米率">
+                    <div class="input-group">
+                        <input type="text" id="yieldInput" name="初估碾米率" placeholder="請輸入或選擇初估碾米率">
+                        <select id="yieldSelect"></select>
+                    </div>
                 </div>
                 <div class="form-row">
                     <label for="notesTextarea">備註</label>
@@ -535,16 +558,20 @@
         const modal = document.getElementById('inputModal');
         const modalTitle = document.getElementById('modalTitle');
         const dataForm = document.getElementById('dataForm');
-        const dateInput = document.getElementById('dateInput');
-        const binInput = document.getElementById('binInput');
-        const materialInput = document.getElementById('materialInput');
-        const materialSelect = document.getElementById('materialSelect');
-        const vendorInput = document.getElementById('vendorInput');
-        const vendorSelect = document.getElementById('vendorSelect');
-        const drynessInput = document.getElementById('drynessInput');
-        const drynessSelect = document.getElementById('drynessSelect');
-        const gradeInput = document.getElementById('gradeInput');
-        const gradeSelect = document.getElementById('gradeSelect');
+
+        // 定義所有輸入框和下拉選單的映射
+        const formFields = [
+            { input: 'dateInput', select: 'dateSelect', key: '日期' },
+            { input: 'materialInput', select: 'materialSelect', key: '原物料' },
+            { input: 'vendorInput', select: 'vendorSelect', key: '廠商名稱' },
+            { input: 'drynessInput', select: 'drynessSelect', key: '乾燥度' },
+            { input: 'gradeInput', select: 'gradeSelect', key: '等級' },
+            { input: 'binInput', select: 'binSelect', key: '料桶' },
+            { input: 'weightInput', select: 'weightSelect', key: '總重' },
+            { input: 'capacityInput', select: 'capacitySelect', key: '容量' },
+            { input: 'yieldInput', select: 'yieldSelect', key: '初估碾米率' }
+        ];
+
         const cancelBtn = document.getElementById('cancelBtn');
         const hiddenIframe = document.getElementById('hidden-iframe'); 
         
@@ -560,10 +587,12 @@
                 })
                 .then(data => {
                     console.log('Fetched options:', data);
-                    populateDropdown(materialSelect, data['原物料']);
-                    populateDropdown(vendorSelect, data['廠商名稱']);
-                    populateDropdown(drynessSelect, data['乾燥度']);
-                    populateDropdown(gradeSelect, data['等級']);
+                    formFields.forEach(field => {
+                        const selectElement = document.getElementById(field.select);
+                        if (selectElement && data[field.key]) {
+                            populateDropdown(selectElement, data[field.key]);
+                        }
+                    });
                 })
                 .catch(error => {
                     console.error('Error fetching options:', error);
@@ -586,18 +615,15 @@
             });
         }
         
-        // 新增的事件監聽器，將下拉選單的值填入輸入框
-        materialSelect.addEventListener('change', () => {
-            materialInput.value = materialSelect.value;
-        });
-        vendorSelect.addEventListener('change', () => {
-            vendorInput.value = vendorSelect.value;
-        });
-        drynessSelect.addEventListener('change', () => {
-            drynessInput.value = drynessSelect.value;
-        });
-        gradeSelect.addEventListener('change', () => {
-            gradeInput.value = gradeSelect.value;
+        // 為每個下拉選單添加事件監聽器
+        formFields.forEach(field => {
+            const selectElement = document.getElementById(field.select);
+            const inputElement = document.getElementById(field.input);
+            if (selectElement && inputElement) {
+                selectElement.addEventListener('change', () => {
+                    inputElement.value = selectElement.value;
+                });
+            }
         });
 
         document.querySelectorAll('.bin-item').forEach(item => {
@@ -605,27 +631,35 @@
                 const binName = item.dataset.binName;
                 fetchOptions();
                 modalTitle.textContent = `輸入 ${binName} 的資料`;
-                binInput.value = binName;
-                dateInput.value = item.dataset.date;
-                modal.style.display = 'flex';
                 
-                // 清空輸入框和下拉選單的選擇狀態
-                materialInput.value = '';
-                materialSelect.value = '';
-                vendorInput.value = '';
-                vendorSelect.value = '';
-                drynessInput.value = '';
-                drynessSelect.value = '';
-                gradeInput.value = '';
-                gradeSelect.value = '';
-                
+                // 清空所有輸入框和下拉選單的選擇狀態
+                formFields.forEach(field => {
+                    const inputElement = document.getElementById(field.input);
+                    const selectElement = document.getElementById(field.select);
+                    if (inputElement) inputElement.value = '';
+                    if (selectElement) selectElement.value = '';
+                });
+
                 // 根據按鈕資料自動填入
+                const dateInput = document.getElementById('dateInput');
+                const binInput = document.getElementById('binInput');
+                const materialInput = document.getElementById('materialInput');
+                const vendorInput = document.getElementById('vendorInput');
+                
+                // 特別處理料桶編號，它會同時出現在 input 和 select 列表中
+                binInput.value = binName;
+                
+                if (item.dataset.date) {
+                    dateInput.value = item.dataset.date;
+                }
                 if (item.dataset.material) {
                     materialInput.value = item.dataset.material;
                 }
                 if (item.dataset.vendor) {
                     vendorInput.value = item.dataset.vendor;
                 }
+                
+                modal.style.display = 'flex';
             });
         });
 
