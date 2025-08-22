@@ -9,7 +9,7 @@
         /* ==================================================================== */
         
         body {
-            font-family: 'Noto Sans TC', 'Arial', sans-serif; /* 推薦使用思源黑體以獲得更好的中文字體顯示 */
+            font-family: 'Noto Sans TC', 'Arial', sans-serif;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -36,47 +36,58 @@
             width: 100%;
         }
         
-        /* 存放料桶區塊的外層容器 */
+        /* 上方「存放料桶」區塊的外層容器 */
         .storage-bins-container {
             display: flex;
-            justify-content: center; /* 讓內容居中 */
+            justify-content: center;
             gap: 20px;
-            padding: 20px;
-            border: 2px solid #a0d4ff; /* 藍色邊框，與圖片風格一致 */
-            border-radius: 10px;
-            background-color: #f8fbff; /* 淺藍色背景 */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: fit-content; /* 寬度根據內容自動調整 */
-        }
-        
-        /* 料桶網格容器 - 用於圖片中12*5的佈局 */
-        .bin-grid-layout {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr); /* 創建12等分的欄位 */
-            gap: 10px;
-            width: 100%;
             padding: 20px;
             border: 2px solid #a0d4ff;
             border-radius: 10px;
             background-color: #f8fbff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 1200px;
+            width: fit-content;
         }
         
         /* ==================================================================== */
-        /* 料桶項目樣式 */
+        /* 新增的「新料桶區」樣式，用於 12x5 網格佈局 */
         /* ==================================================================== */
         
+        .new-bins-area {
+            margin-top: 50px;
+            width: 100%;
+            max-width: 1200px;
+            text-align: center;
+        }
+        
+        .new-storage-bins-container {
+            padding: 20px;
+            border: 2px solid #a0d4ff; /* 藍色邊框 */
+            background-color: #f8fbff; /* 淺藍色背景 */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        /* 這裡使用 CSS Grid 來創建 12x5 的網格佈局 */
+        .bin-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 10px;
+        }
+        
+        /* ==================================================================== */
         /* 料桶項目通用樣式 */
-        .bin-item {
+        /* ==================================================================== */
+        
+        .bin-item, .empty-bin {
+            height: 100px; /* 固定高度 */
+            padding: 10px;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-width: 80px; /* 確保最小寬度 */
-            height: 100px; /* 固定高度 */
-            padding: 10px;
-            border-radius: 8px;
             font-size: 0.9em;
             text-align: center;
             box-sizing: border-box;
@@ -86,13 +97,13 @@
         }
         
         /* 已有內容的料桶 */
-        .bin-item.occupied {
+        .bin-item {
             background-color: #a0d4ff; /* 淡藍色，與圖片相似 */
             border: 1px solid #007bff;
             color: #003366;
         }
         
-        .bin-item.occupied:hover {
+        .bin-item:hover {
             transform: translateY(-3px);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
@@ -110,21 +121,19 @@
         }
         
         /* 空料桶樣式 */
-        .bin-item.empty {
+        .empty-bin {
             background-color: #e9f5ff; /* 淺藍色，比有內容的更淡 */
             border: 1px dashed #a0d4ff;
             color: #a0d4ff;
             font-size: 1.2em;
-            justify-content: center;
-            align-items: center;
         }
         
-        .bin-item.empty:hover {
+        .empty-bin:hover {
             background-color: #dbeaff;
         }
         
         /* ==================================================================== */
-        /* 彈出視窗 (Modal) 與表單樣式 (與您原有的基本一致，微調以增強視覺效果) */
+        /* 彈出視窗 (Modal) 與等待畫面樣式 (保留原有) */
         /* ==================================================================== */
         
         .modal {
@@ -147,11 +156,6 @@
             width: 80%;
             max-width: 600px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .modal-content h2 {
-            text-align: center;
-            margin-bottom: 20px;
         }
         
         .form-row {
@@ -197,10 +201,6 @@
             background-color: #dc3545;
             color: white;
         }
-        
-        /* ==================================================================== */
-        /* 等待畫面樣式 */
-        /* ==================================================================== */
         
         #loadingOverlay {
             display: none;
