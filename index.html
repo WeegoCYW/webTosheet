@@ -21,7 +21,6 @@
             font-size: 1.5em;
         }
 
-        /* ------------------ 新增的排版樣式 ------------------ */
         .main-layout {
             display: flex;
             justify-content: center;
@@ -30,7 +29,7 @@
         
         .storage-bins-container {
             display: flex;
-            gap: 30px; /* 組與組之間的間距 */
+            gap: 30px;
             padding: 20px;
             border: 2px solid #ccc;
             background-color: white;
@@ -41,16 +40,15 @@
         .bin-group {
             display: flex;
             flex-direction: column;
-            gap: 10px; /* 兩排之間的間距 */
+            gap: 10px;
         }
         
         .bin-column {
             display: flex;
             flex-direction: column;
-            gap: 10px; /* 按鈕之間的間距 */
+            gap: 10px;
         }
-
-        /* ------------------ 原有的樣式 ------------------ */
+        
         .bin-item {
             display: flex;
             flex-direction: column;
@@ -68,8 +66,9 @@
             transition: background-color 0.2s;
             text-align: center;
             box-sizing: border-box;
+            color: #333;
         }
-
+        
         .bin-item:hover {
             background-color: #cce7ff;
         }
@@ -91,6 +90,12 @@
             font-size: 0.9em;
             color: #555;
             margin-top: 5px;
+        }
+        
+        .bin-vendor {
+            font-size: 0.8em;
+            color: #777;
+            margin-top: 2px;
         }
 
         .modal {
@@ -132,11 +137,20 @@
             font-weight: bold;
         }
 
-        .form-row input, .form-row textarea {
-            width: calc(100% - 130px);
+        /* 新增的容器，用於包裹輸入框和下拉選單 */
+        .input-group {
+            display: flex;
+            flex: 1; /* 讓容器佔據剩餘空間 */
+            gap: 10px; /* 輸入框和下拉選單之間的間距 */
+        }
+        
+        /* 讓 input 和 select 都能填滿空間 */
+        .input-group input, .input-group select {
+            width: 100%;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            box-sizing: border-box; /* 確保 padding 不會影響寬度 */
         }
 
         .form-row input[readonly] {
@@ -176,7 +190,7 @@
 <body>
     <div class="header-title">存放料桶</div>
 
-        <div class="main-layout">
+    <div class="main-layout">
         <div class="storage-bins-container">
             <div class="bin-group">
                 <div class="bin-column">
@@ -447,6 +461,7 @@
             </div>
         </div>
     </div>
+
     <div id="inputModal" class="modal">
         <div class="modal-content">
             <h2 id="modalTitle"></h2>
@@ -457,19 +472,31 @@
                 </div>
                 <div class="form-row">
                     <label for="materialInput">輸入原物料</label>
-                    <input type="text" id="materialInput" name="輸入原物料" readonly>
+                    <div class="input-group">
+                        <input type="text" id="materialInput" name="輸入原物料" placeholder="請輸入或選擇原物料">
+                        <select id="materialSelect"></select>
+                    </div>
                 </div>
                 <div class="form-row">
                     <label for="vendorInput">廠商名稱</label>
-                    <input type="text" id="vendorInput" name="廠商名稱" placeholder="請輸入廠商名稱">
+                    <div class="input-group">
+                        <input type="text" id="vendorInput" name="廠商名稱" placeholder="請輸入或選擇廠商名稱">
+                        <select id="vendorSelect"></select>
+                    </div>
                 </div>
                 <div class="form-row">
                     <label for="drynessInput">乾燥度</label>
-                    <input type="text" id="drynessInput" name="乾燥度" placeholder="請輸入乾燥度">
+                    <div class="input-group">
+                        <input type="text" id="drynessInput" name="乾燥度" placeholder="請輸入或選擇乾燥度">
+                        <select id="drynessSelect"></select>
+                    </div>
                 </div>
                 <div class="form-row">
                     <label for="gradeInput">等級</label>
-                    <input type="text" id="gradeInput" name="等級" placeholder="請輸入等級">
+                    <div class="input-group">
+                        <input type="text" id="gradeInput" name="等級" placeholder="請輸入或選擇等級">
+                        <select id="gradeSelect"></select>
+                    </div>
                 </div>
                 <div class="form-row">
                     <label for="binInput">料桶</label>
@@ -499,105 +526,131 @@
         </div>
     </div>
 
-    <iframe id="hidden-iframe" name="hidden-iframe"></iframe>
+    <iframe id="hidden-iframe" name="hidden-iframe" style="display: none;"></iframe>
 
     <script>
-        const scriptURL = "https://script.google.com/macros/s/AKfycbyP28l_2WPm1v-ZKuDDq6hYwig2Dkh1T66Due_jSTA3UVwWxmD_RUjnQ6LZWLudeEtJ/exec"; // 請替換為您自己的 Apps Script URL
+        const scriptURL = "https://script.google.com/macros/s/AKfycbyP28l_2WPm1v-ZKuDDq6hYwig2Dkh1T66Due_jSTA3UVwWxmD_RUjnQ6LZWLudeEtJ/exec";
+        const optionsURL = "https://script.google.com/macros/s/您的新GET部署網址/exec"; // 請替換為您的 Apps Script doGet 網址
 
-        // 彈出視窗相關元素
         const modal = document.getElementById('inputModal');
         const modalTitle = document.getElementById('modalTitle');
         const dataForm = document.getElementById('dataForm');
-        const materialInput = document.getElementById('materialInput');
+        const dateInput = document.getElementById('dateInput');
         const binInput = document.getElementById('binInput');
+        const materialInput = document.getElementById('materialInput');
+        const materialSelect = document.getElementById('materialSelect');
+        const vendorInput = document.getElementById('vendorInput');
+        const vendorSelect = document.getElementById('vendorSelect');
+        const drynessInput = document.getElementById('drynessInput');
+        const drynessSelect = document.getElementById('drynessSelect');
+        const gradeInput = document.getElementById('gradeInput');
+        const gradeSelect = document.getElementById('gradeSelect');
         const cancelBtn = document.getElementById('cancelBtn');
-        const hiddenIframe = document.getElementById('hidden-iframe'); // 定義變數
+        const hiddenIframe = document.getElementById('hidden-iframe'); 
+        
+        dataForm.action = scriptURL;
 
-        // 點擊料桶時顯示彈出視窗
+        function fetchOptions() {
+            fetch(optionsURL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Fetched options:', data);
+                    populateDropdown(materialSelect, data['原物料']);
+                    populateDropdown(vendorSelect, data['廠商名稱']);
+                    populateDropdown(drynessSelect, data['乾燥度']);
+                    populateDropdown(gradeSelect, data['等級']);
+                })
+                .catch(error => {
+                    console.error('Error fetching options:', error);
+                    alert('無法載入下拉選單選項。');
+                });
+        }
+
+        function populateDropdown(selectElement, optionsArray) {
+            selectElement.innerHTML = '';
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = '▼';
+            selectElement.appendChild(defaultOption);
+
+            optionsArray.forEach(optionText => {
+                const option = document.createElement('option');
+                option.value = optionText;
+                option.textContent = optionText;
+                selectElement.appendChild(option);
+            });
+        }
+        
+        // 新增的事件監聽器，將下拉選單的值填入輸入框
+        materialSelect.addEventListener('change', () => {
+            materialInput.value = materialSelect.value;
+        });
+        vendorSelect.addEventListener('change', () => {
+            vendorInput.value = vendorSelect.value;
+        });
+        drynessSelect.addEventListener('change', () => {
+            drynessInput.value = drynessSelect.value;
+        });
+        gradeSelect.addEventListener('change', () => {
+            gradeInput.value = gradeSelect.value;
+        });
+
         document.querySelectorAll('.bin-item').forEach(item => {
             item.addEventListener('click', () => {
                 const binName = item.dataset.binName;
-                const materialName = item.dataset.material;
-
+                fetchOptions();
                 modalTitle.textContent = `輸入 ${binName} 的資料`;
-                materialInput.value = materialName;
                 binInput.value = binName;
+                dateInput.value = item.dataset.date;
                 modal.style.display = 'flex';
-
-                // 設定 form 的 action，指向 Apps Script URL
-                dataForm.action = scriptURL;
+                
+                // 清空輸入框和下拉選單的選擇狀態
+                materialInput.value = '';
+                materialSelect.value = '';
+                vendorInput.value = '';
+                vendorSelect.value = '';
+                drynessInput.value = '';
+                drynessSelect.value = '';
+                gradeInput.value = '';
+                gradeSelect.value = '';
+                
+                // 根據按鈕資料自動填入
+                if (item.dataset.material) {
+                    materialInput.value = item.dataset.material;
+                }
+                if (item.dataset.vendor) {
+                    vendorInput.value = item.dataset.vendor;
+                }
             });
         });
 
-        // 取消按鈕，隱藏彈出視窗
         cancelBtn.addEventListener('click', () => {
             modal.style.display = 'none';
         });
 
-        // 點擊視窗外部時隱藏彈出視窗
         window.addEventListener('click', (event) => {
             if (event.target == modal) {
                 modal.style.display = 'none';
             }
         });
 
-        // 使用 addEventListener 來監聽 iframe 的 load 事件
         hiddenIframe.addEventListener('load', () => {
-            // 只有在表單提交後才執行
             if (dataForm.dataset.submitting === 'true') {
                 alert('資料已成功傳送！');
-                modal.style.display = 'none'; // 隱藏彈出視窗
-                dataForm.reset(); // 清空表單
-                dataForm.dataset.submitting = 'false'; // 重設狀態
+                modal.style.display = 'none';
+                dataForm.reset();
+                dataForm.dataset.submitting = 'false';
             }
         });
-    
-        // 監聽表單的提交事件，以便在提交時做一些事情
+
         dataForm.addEventListener('submit', () => {
-            // 設定一個標記，表示表單正在提交
             dataForm.dataset.submitting = 'true';
         });
-
-        // // 表單提交事件
-        // dataForm.addEventListener('submit', (event) => {
-        //     event.preventDefault(); // 防止表單預設提交行為
-    
-        //     // 建立一個 URLSearchParams 物件來處理表單資料
-        //     const formData = new FormData(dataForm);
-        //     const urlEncodedData = new URLSearchParams();
-        //     for (const [key, value] of formData.entries()) {
-        //         urlEncodedData.append(key, value);
-        //     }
-    
-        //     console.log('將要傳送的資料:', Object.fromEntries(urlEncodedData.entries()));
-    
-        //     fetch(scriptURL, {
-        //         method: 'POST',
-        //         body: urlEncodedData.toString(), // 轉換為字串作為請求主體
-        //         headers: {
-        //             // 將 Content-Type 設定為 x-www-form-urlencoded
-        //             'Content-Type': 'application/x-www-form-urlencoded'
-        //         }
-        //     })
-        //     .then(response => {
-        //         if (!response.ok) {
-        //             throw new Error('Network response was not ok.');
-        //         }
-        //         return response.text(); // 預期接收純文字回應
-        //     })
-        //     .then(text => {
-        //         // 由於我們接收的是文字回應，可以直接在 console.log 中顯示
-        //         console.log('伺服器回應:', text);
-        //         // 成功訊息就在文字本身中
-        //         alert('資料已成功傳送！');
-        //         modal.style.display = 'none';
-        //         dataForm.reset();
-        //     })
-        //     .catch(error => {
-        //         console.error('錯誤:', error);
-        //         alert('資料傳送失敗！ ' + error.message);
-        //     });
-        // });
     </script>
 </body>
 </html>
