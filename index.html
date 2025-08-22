@@ -32,7 +32,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 50px; /* 增加不同料桶區塊之間的間距 */
+            gap: 50px;
             width: 100%;
         }
         
@@ -42,46 +42,36 @@
             justify-content: center;
             gap: 20px;
             padding: 20px;
+            border: 2px solid #a0d4ff; /* 藍色邊框，與圖片風格一致 */
+            border-radius: 10px;
+            background-color: #f8fbff; /* 淺藍色背景 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: fit-content;
+            margin-top: 20px;
+        }
+        
+        /* 下方「料桶分布」的網格佈局容器 */
+        .bin-grid-layout {
+            display: grid;
+            /* 這裡的列數可以根據您的圖片調整，假設圖片最多有9列 */
+            grid-template-columns: repeat(9, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 1200px; /* 限制最大寬度 */
+            padding: 20px;
             border: 2px solid #a0d4ff;
             border-radius: 10px;
             background-color: #f8fbff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: fit-content;
-        }
-        
-        /* ==================================================================== */
-        /* 新增的「新料桶區」樣式，用於 12x5 網格佈局 */
-        /* ==================================================================== */
-        
-        .new-bins-area {
-            margin-top: 50px;
-            width: 100%;
-            max-width: 1200px;
-            text-align: center;
-        }
-        
-        .new-storage-bins-container {
-            padding: 20px;
-            border: 2px solid #a0d4ff; /* 藍色邊框 */
-            background-color: #f8fbff; /* 淺藍色背景 */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-        
-        /* 這裡使用 CSS Grid 來創建 12x5 的網格佈局 */
-        .bin-grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 10px;
         }
         
         /* ==================================================================== */
         /* 料桶項目通用樣式 */
         /* ==================================================================== */
         
+        /* 所有料桶的共同樣式，包括已佔用和空置的 */
         .bin-item, .empty-bin {
-            height: 100px; /* 固定高度 */
+            height: 100px;
             padding: 10px;
             border-radius: 8px;
             display: flex;
@@ -111,7 +101,7 @@
         .bin-item h4 {
             font-size: 1.2em;
             font-weight: bold;
-            margin: 0 0 5px 0;
+            margin: 0;
         }
         
         .bin-material, .bin-info, .bin-vendor {
@@ -133,7 +123,7 @@
         }
         
         /* ==================================================================== */
-        /* 彈出視窗 (Modal) 與等待畫面樣式 (保留原有) */
+        /* 彈出視窗 (Modal) 與等待畫面樣式 */
         /* ==================================================================== */
         
         .modal {
@@ -257,75 +247,8 @@
 
     <div class="new-bins-area">
         <div class="header-title">料桶分布圖</div>
-        <div class="new-storage-bins-container">
-            <div class="bin-grid">
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
-                <div class="empty-bin"></div>
+        <div class="storage-bins-container bin-grid-layout" id="binMapContainer">
             </div>
-        </div>
-    </div>
 
     <div id="inputModal" class="modal">
         <div class="modal-content">
@@ -414,12 +337,16 @@
     <iframe id="hidden-iframe" name="hidden-iframe" style="display: none;"></iframe>
 
     <script>
-        const scriptURL = "https://script.google.com/macros/s/AKfycbwE1UGU5b2tJJ5epkBzY6R7Lm5mlx2-IkDQtAKO6Lqe2ilvmDAh-0gVDmLuQuy3TfX6/exec";
-        const optionsURL = "https://script.google.com/macros/s/AKfycbwE1UGU5b2tJJ5epkBzY6R7Lm5mlx2-IkDQtAKO6Lqe2ilvmDAh-0gVDmLuQuy3TfX6/exec"; // 請替換為您的 Apps Script doGet 網址
+        // 移除不必要的 URLs，因為我們將使用 google.script.run
+        // const scriptURL = "..."; 
+        // const optionsURL = "...";
     
         const modal = document.getElementById('inputModal');
         const modalTitle = document.getElementById('modalTitle');
         const dataForm = document.getElementById('dataForm');
+    
+        // 新增：獲取料桶分布圖的容器
+        const binMapContainer = document.getElementById('binMapContainer');
     
         // 定義需要從 Apps Script 獲取選項的欄位
         const googleSheetFields = [
@@ -436,17 +363,25 @@
         // 獨立處理日期欄位，不與 Google Sheet 串聯
         const dateInput = document.getElementById('dateInput');
         const dateSelect = document.getElementById('dateSelect');
-        
+    
         const cancelBtn = document.getElementById('cancelBtn');
-        const hiddenIframe = document.getElementById('hidden-iframe');
+        // 移除 hiddenIframe 的宣告，因為不再使用此方法
+        // const hiddenIframe = document.getElementById('hidden-iframe');
         const loadingOverlay = document.getElementById('loadingOverlay');
     
-        dataForm.action = scriptURL;
+        // 移除這行，因為表單提交將由 JavaScript 處理，而不是 hiddenIframe
+        // dataForm.action = scriptURL;
     
         // --- 新增：用來儲存已載入的選項資料 ---
-        let cachedOptions = null; 
+        let cachedOptions = null;
         // ------------------------------------
     
+        // --- 新增：頁面載入時執行，開始載入料桶地圖 ---
+        window.addEventListener('DOMContentLoaded', () => {
+            loadBinMapData(); // 初始載入料桶地圖
+        });
+    
+        // --- 輔助函式 ---
         function showLoading() {
             loadingOverlay.style.display = 'flex';
         }
@@ -455,26 +390,74 @@
             loadingOverlay.style.display = 'none';
         }
     
-        // 將所有下拉式選單設為禁用
-        function disableSelects() {
-            googleSheetFields.forEach(field => {
-                const selectElement = document.getElementById(field.select);
-                if (selectElement) {
-                    selectElement.disabled = true;
+        // --- 修改：移除 disableSelects 和 enableSelects 函式，因為我們改為在開啟 modal 時動態載入 ---
+        // 這兩個函式只在 fetchOptions 裡使用，但我們將用 google.script.run 取代，所以不再需要
+    
+        // --- 新增：從 Apps Script 獲取料桶地圖數據並渲染的函式 ---
+        function loadBinMapData() {
+            showLoading();
+            // 呼叫後端的 getBinMapData 函式
+            google.script.run
+                .withSuccessHandler(renderBinMap)
+                .withFailureHandler(handleError)
+                .getBinMapData();
+        }
+        
+        // --- 新增：根據從後端獲取的數據來渲染料桶圖 ---
+        function renderBinMap(binMapData) {
+            // 清空容器，防止重複渲染
+            binMapContainer.innerHTML = '';
+            const allBins = generateAllBinNames();
+            const dataMap = new Map(binMapData.map(item => [item.binName, item]));
+    
+            allBins.forEach(binName => {
+                const binData = dataMap.get(binName);
+                let binElement;
+    
+                // 根據數據是否存在來決定顯示樣式
+                if (binData && binData.material && binData.material !== '') {
+                    binElement = document.createElement('div');
+                    binElement.className = 'bin-item';
+                    binElement.setAttribute('data-bin-name', binName);
+                    
+                    // 為了測試串聯，只顯示料桶代號
+                    binElement.innerHTML = `<h4>${binName}</h4>`;
+                    
+                } else {
+                    binElement = document.createElement('div');
+                    binElement.className = 'empty-bin';
+                    binElement.setAttribute('data-bin-name', binName);
+                    binElement.textContent = binName;
                 }
+                
+                // 新增：為每個動態生成的元素綁定點擊事件
+                binElement.addEventListener('click', () => {
+                    openModal(binElement);
+                });
+                
+                binMapContainer.appendChild(binElement);
             });
-            dateSelect.disabled = true;
+            hideLoading();
         }
     
-        // 將所有下拉式選單恢復為啟用
-        function enableSelects() {
-            googleSheetFields.forEach(field => {
-                const selectElement = document.getElementById(field.select);
-                if (selectElement) {
-                    selectElement.disabled = false;
+        // --- 新增：產生所有料桶代號的輔助函式 ---
+        function generateAllBinNames() {
+            const binNames = [];
+            const numRows = 5; // 假設有5排
+            const numCols = 9; // 假設有9列
+            
+            for (let i = 1; i <= numRows; i++) {
+                for (let j = 1; j <= numCols; j++) {
+                    binNames.push(`${i}-${j}`);
                 }
-            });
-            dateSelect.disabled = false;
+            }
+            return binNames;
+        }
+    
+        function handleError(error) {
+            console.error('Error:', error);
+            hideLoading();
+            alert('操作失敗，請檢查網路連線或稍後再試。');
         }
     
         // 根據傳入的資料填充下拉式選單
@@ -487,43 +470,6 @@
             });
         }
     
-        // 修改 fetchOptions 函式，檢查緩存
-        function fetchOptions() {
-            // 如果已經有緩存資料，直接使用
-            if (cachedOptions) {
-                console.log('Using cached options.');
-                populateAllDropdowns(cachedOptions);
-                enableSelects();
-                return Promise.resolve(); // 返回一個已解決的 Promise，以保持鏈式調用的一致性
-            }
-    
-            // 如果沒有緩存資料，才發送請求
-            showLoading();
-            disableSelects();
-    
-            return fetch(optionsURL) // 返回 Promise
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok.');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Fetched new options, caching them.');
-                    cachedOptions = data; // 儲存資料到緩存
-                    populateAllDropdowns(data);
-                    enableSelects();
-                    hideLoading();
-                })
-                .catch(error => {
-                    console.error('Error fetching options:', error);
-                    alert('無法載入下拉選單選項。');
-                    enableSelects();
-                    hideLoading();
-                    throw error; // 重新拋出錯誤，讓呼叫方知道失敗了
-                });
-        }
-    
         // 填充下拉選單的通用函式
         function populateDropdown(selectElement, optionsArray) {
             selectElement.innerHTML = '';
@@ -532,7 +478,8 @@
             defaultOption.textContent = '▼';
             selectElement.appendChild(defaultOption);
     
-            optionsArray.forEach(optionText => {
+            const uniqueOptions = [...new Set(optionsArray)];
+            uniqueOptions.forEach(optionText => {
                 const option = document.createElement('option');
                 option.value = optionText;
                 option.textContent = optionText;
@@ -556,16 +503,38 @@
                 date.setDate(today.getDate() - i);
                 const year = date.getFullYear();
                 const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                const day = date.getDate().toString().padStart(2, '0');
+                const day = date.getDate().getDate().toString().padStart(2, '0');
                 const formattedDate = `${year}/${month}/${day}`;
-    
                 const option = document.createElement('option');
                 option.value = formattedDate;
                 option.textContent = formattedDate;
                 dateSelect.appendChild(option);
             }
         }
-        
+    
+        // --- 修改：移除 fetchOptions 函式，改為使用 google.script.run ---
+        function fetchOptions() {
+            if (cachedOptions) {
+                populateAllDropdowns(cachedOptions);
+                return Promise.resolve();
+            }
+    
+            return new Promise((resolve, reject) => {
+                google.script.run
+                    .withSuccessHandler(data => {
+                        cachedOptions = data.dropdownOptions;
+                        populateAllDropdowns(cachedOptions);
+                        resolve();
+                    })
+                    .withFailureHandler(error => {
+                        console.error('Error fetching options:', error);
+                        alert('無法載入下拉選單選項。');
+                        reject(error);
+                    })
+                    .getDropdownOptions();
+            });
+        }
+    
         // 為每個下拉選單添加事件監聽器，將值填入對應的輸入框
         googleSheetFields.forEach(field => {
             const selectElement = document.getElementById(field.select);
@@ -582,48 +551,29 @@
             dateInput.value = dateSelect.value;
         });
     
-        document.querySelectorAll('.bin-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const binName = item.dataset.binName;
-                
-                // 清空所有輸入框和下拉選單的選擇狀態
-                dateInput.value = '';
-                dateSelect.value = '';
-                googleSheetFields.forEach(field => {
-                    const inputElement = document.getElementById(field.input);
-                    const selectElement = document.getElementById(field.select);
-                    if (inputElement) inputElement.value = '';
-                    if (selectElement) selectElement.value = '';
-                });
-    
-                // 呼叫獨立的函式來生成日期下拉選單
-                populateDateDropdown(10);
-                
-                // 呼叫函式來獲取 Google Sheet 上的選項
-                fetchOptions();
-                
+        // --- 修改：更新點擊事件處理，以適用於動態生成的元素 ---
+        // 移除原有的 document.querySelectorAll('.bin-item').forEach(item => ...);
+        // 因為新元素是動態生成的，必須在生成時綁定事件。
+        // 這部分已整合到 renderBinMap 函式中，因此這裡只需要 openModal 函式即可。
+        
+        // 處理彈出視窗開啟的函式
+        function openModal(itemElement) {
+            const binName = itemElement.dataset.binName;
+            
+            dataForm.reset();
+            
+            populateDateDropdown(10);
+            
+            showLoading();
+            fetchOptions().finally(() => {
+                hideLoading();
                 modalTitle.textContent = `輸入 ${binName} 的資料`;
-                
-                // 根據按鈕資料自動填入
-                const materialInput = document.getElementById('materialInput');
-                const vendorInput = document.getElementById('vendorInput');
                 const binInput = document.getElementById('binInput');
-    
                 binInput.value = binName;
-                
-                if (item.dataset.date) {
-                    dateInput.value = item.dataset.date;
-                }
-                if (item.dataset.material) {
-                    materialInput.value = item.dataset.material;
-                }
-                if (item.dataset.vendor) {
-                    vendorInput.value = item.dataset.vendor;
-                }
-                
+    
                 modal.style.display = 'flex';
             });
-        });
+        }
     
         cancelBtn.addEventListener('click', () => {
             modal.style.display = 'none';
@@ -635,19 +585,30 @@
             }
         });
     
-        hiddenIframe.addEventListener('load', () => {
-            if (dataForm.dataset.submitting === 'true') {
-                loadingOverlay.style.display = 'none';
-                alert('資料已成功傳送！');
-                modal.style.display = 'none';
-                dataForm.reset();
-                dataForm.dataset.submitting = 'false';
-            }
-        });
+        // --- 修改：移除 hiddenIframe.addEventListener('load') 的處理方式 ---
+        // 移除表單提交的隱藏 iframe 監聽邏輯
+        // 因為我們將改為使用 google.script.run 處理表單提交
+        
+        // --- 修改：更新表單提交的處理方式 ---
+        dataForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // 阻止表單預設提交行為
+            showLoading();
     
-        dataForm.addEventListener('submit', () => {
-            dataForm.dataset.submitting = 'true';
-            loadingOverlay.style.display = 'flex';
+            const formData = new FormData(dataForm);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+    
+            google.script.run
+                .withSuccessHandler(() => {
+                    alert('資料已成功傳送！');
+                    modal.style.display = 'none';
+                    dataForm.reset();
+                    loadBinMapData(); // 成功後重新載入地圖
+                })
+                .withFailureHandler(handleError)
+                .processForm(data); // 呼叫後端函式處理資料
         });
     </script>
 </body>
