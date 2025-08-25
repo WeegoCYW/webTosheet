@@ -124,10 +124,14 @@
         .bin-info-line {
             font-size: 0.8em;
             color: #333;
-            line-height: 1.2; /* 增加行高 */
+            line-height: 1.2;
             margin-top: 2px;
             text-align: center;
-            /* 移除所有單行和省略號的限制，讓內容可以自動換行 */
+            
+            /* 關鍵修正：將 span 變成區塊元素，強制其獨佔一行 */
+            display: block; 
+            
+            /* 確保內容可以自動換行，不受單行限制 */
             white-space: normal;
             word-break: break-all;
         }
