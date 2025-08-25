@@ -365,8 +365,8 @@
     <iframe id="hidden-iframe" name="hidden-iframe" style="display: none;"></iframe>
 
     <script>
-        const scriptURL = "https://script.google.com/macros/s/AKfycbweeOpMeJR7op9f3c5c1wICMlbCu4ejKS_OUUuBMT1HNcsqY992yuIeW4Lch0-f6Ii9/exec";
-        const optionsURL = "https://script.google.com/macros/s/AKfycbweeOpMeJR7op9f3c5c1wICMlbCu4ejKS_OUUuBMT1HNcsqY992yuIeW4Lch0-f6Ii9/exec"; // 請替換為您的 Apps Script doGet 網址
+        const scriptURL = "https://script.google.com/macros/s/AKfycbyD_MM33K2QNte96_Kn8V7JlSONRwavohutnPx5P6w8Dp9xvVG6ZZe5kQ0ybHVssMbR/exec";
+        const optionsURL = "https://script.google.com/macros/s/AKfycbyD_MM33K2QNte96_Kn8V7JlSONRwavohutnPx5P6w8Dp9xvVG6ZZe5kQ0ybHVssMbR/exec"; // 請替換為您的 Apps Script doGet 網址
         
         const modal = document.getElementById('inputModal');
         const modalTitle = document.getElementById('modalTitle');
@@ -540,15 +540,15 @@
             const numRows = 5;  // 5 行
             
             // 建立一個 Map，方便透過 binName 快速查詢到整個物件
-            const dataMap = new Map(binMapData.map(item => [item.binName, item]));
+            const dataMap = new Map(binMapData.map(item => [item.positionName, item]));
             
             for (let row = 1; row <= numRows; row++) {
                 for (let col = 1; col <= numCols; col++) {
-                    const binName = `${col}-${row}`;
+                    const positionName = `${col}-${row}`;
                     
-                    // 透過 binName 從 dataMap 中獲取整個物件
-                    const binObject = dataMap.get(binName) || {
-                        binName: binName,
+                    // 透過 positionName 從 dataMap 中獲取整個物件
+                    const binObject = dataMap.get(positionName) || {
+                        binName: '',
                         item: '',
                         date: '',
                         vendor: ''
@@ -558,7 +558,7 @@
                     
                     // 使用後端傳來的獨立屬性來判斷是否為空料桶
                     // 修正的邏輯：只要 binValue 有內容，就視為非空料桶
-                    if (binObject && binObject.binValue) { 
+                    if (binObject.binValue) { 
                         binElement = document.createElement('div');
                         binElement.className = 'bin-item';
                         
@@ -584,7 +584,7 @@
                     }
                     
                     // 所有的料桶元素都應該有 binName
-                    binElement.dataset.binName = binObject.binName;
+                    binElement.dataset.binName = positionName;
                     
                     // 新增點擊事件監聽器
                     binElement.addEventListener('click', () => {
