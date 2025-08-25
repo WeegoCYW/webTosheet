@@ -526,9 +526,6 @@
             // 修正的邏輯：直接將後端傳來的陣列，轉換為一個以 binName 為鍵的 Map
             const dataMap = new Map(binMapData.map(item => [item.binName, item.binValue]));
             
-            // 這個 Map 現在會是這樣的：
-            // Map(60) { '1-1' => '1-1', '2-1' => '2-1', ..., '7-1' => '', ... }
-        
             for (let row = 1; row <= numRows; row++) {
                 for (let col = 1; col <= numCols; col++) {
                     const binName = `${col}-${row}`;
@@ -541,7 +538,10 @@
                     if (binValue) { // 當 binValue 不為空字串或 null 時，此條件成立
                         binElement = document.createElement('div');
                         binElement.className = 'bin-item';
-                        binElement.innerHTML = `<h4>${binName}</h4>`;
+                        
+                        // 修正：現在顯示的是 binValue，而不是 binName
+                        binElement.innerHTML = `<h4>${binValue}</h4>`;
+                        
                         binElement.dataset.binValue = binValue;
                     } else {
                         binElement = document.createElement('div');
