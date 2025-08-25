@@ -365,8 +365,8 @@
     <iframe id="hidden-iframe" name="hidden-iframe" style="display: none;"></iframe>
 
     <script>
-        const scriptURL = "https://script.google.com/macros/s/AKfycbzwDmZOAveN7A_PMy-Bhhgkg5gG_R5MNeR7XsUjpqJodjrC06HOa3miW0LYuJLoRPeB/exec";
-        const optionsURL = "https://script.google.com/macros/s/AKfycbzwDmZOAveN7A_PMy-Bhhgkg5gG_R5MNeR7XsUjpqJodjrC06HOa3miW0LYuJLoRPeB/exec"; // 請替換為您的 Apps Script doGet 網址
+        const scriptURL = "https://script.google.com/macros/s/AKfycbyWYK6nLu2meoVI85aHoGpdAl5p_anL7ShQ_1ZllttV8rv5zhVyPUdfO5H4kUreq7Sm/exec";
+        const optionsURL = "https://script.google.com/macros/s/AKfycbyWYK6nLu2meoVI85aHoGpdAl5p_anL7ShQ_1ZllttV8rv5zhVyPUdfO5H4kUreq7Sm/exec"; // 請替換為您的 Apps Script doGet 網址
         
         const modal = document.getElementById('inputModal');
         const modalTitle = document.getElementById('modalTitle');
@@ -534,64 +534,63 @@
                 console.error('找不到 ID 為 "binMapContainer" 的元素。');
                 return;
             }
-        
+            
             binMapContainer.innerHTML = ''; // 清空容器
             const numCols = 12; // 12 列
             const numRows = 5;  // 5 行
             
-            // 修正的邏輯：直接將後端傳來的陣列，轉換為一個以 binName 為鍵的 Map
-            const dataMap = new Map(binMapData.map(item => [item.binName, item.binValue]));
+            // 建立一個 Map，方便透過 binName 快速查詢到整個物件
+            const dataMap = new Map(binMapData.map(item => [item.binName, item]));
             
             for (let row = 1; row <= numRows; row++) {
                 for (let col = 1; col <= numCols; col++) {
                     const binName = `${col}-${row}`;
                     
-                    // 透過正確的鍵（料桶代號）來獲取值
-                    const binValue = dataMap.get(binName);
-        
+                    // 透過 binName 從 dataMap 中獲取整個物件
+                    const binObject = dataMap.get(binName) || {
+                        binName: binName,
+                        item: '',
+                        date: '',
+                        vendor: ''
+                    };
+                    
                     let binElement;
-                    // 判斷料桶是否已填寫：檢查 binValue 是否為空字串
-                    if (binValue) { // 當 binValue 不為空字串時
+                    
+                    // 使用後端傳來的獨立屬性來判斷是否為空料桶
+                    if (binObject.item || binObject.date || binObject.vendor) { 
                         binElement = document.createElement('div');
                         binElement.className = 'bin-item';
                         
-                        // 假設後端傳來的 binValue 包含了四個屬性，以空白字元分隔
-                        // 例如："1-1 頂呱呱 07/19 來來"
-                        const parts = binValue.split(' ');
-                        
-                        // 如果 parts 陣列的長度不足四個，設定為空字串以避免錯誤
-                        const displayBinName = parts[0] || '';
-                        const displayItem = parts[1] || '';
-                        const displayDate = parts[2] || '';
-                        const displayVendor = parts[3] || '';
-                        
-                        // 動態生成多行 HTML 內容，每個屬性一個 span
+                        // 直接使用物件屬性生成多行 HTML 內容
                         binElement.innerHTML = `
-                            <h4>${displayBinName}</h4>
-                            <span class="bin-info-line">${displayItem}</span>
-                            <span class="bin-info-line">${displayDate}</span>
-                            <span class="bin-info-line">${displayVendor}</span>
+                            <h4>${binObject.binName}</h4>
+                            <span class="bin-info-line">${binObject.item}</span>
+                            <span class="bin-info-line">${binObject.date}</span>
+                            <span class="bin-info-line">${binObject.vendor}</span>
                         `;
                         
                         // 儲存原始資料以供彈出視窗使用
-                        binElement.dataset.binValue = binValue;
-                        binElement.dataset.binName = displayBinName;
-                        binElement.dataset.material = displayItem;
-                        binElement.dataset.date = displayDate;
-                        binElement.dataset.vendor = displayVendor;
-                    
+                        binElement.dataset.binName = binObject.binName;
+                        binElement.dataset.material = binObject.item;
+                        binElement.dataset.date = binObject.date;
+                        binElement.dataset.vendor = binObject.vendor;
+                        
                     } else {
                         // 儲存格為空，顯示料桶代號
                         binElement = document.createElement('div');
                         binElement.className = 'empty-bin';
-                        binElement.innerHTML = `<h4>${binName}</h4>`;
+                        binElement.innerHTML = `<h4>${binObject.binName}</h4>`;
                     }
-        
-                    binElement.dataset.binName = binName;
                     
+                    // 所有的料桶元素都應該有 binName
+                    binElement.dataset.binName = binObject.binName;
+                    
+                    // 新增點擊事件監聽器
                     binElement.addEventListener('click', () => {
                         openModal(binElement);
                     });
+                    
+                    // 將元素添加到容器中
                     binMapContainer.appendChild(binElement);
                 }
             }
