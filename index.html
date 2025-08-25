@@ -36,21 +36,8 @@
             width: 100%;
         }
         
-        /* 上方「存放料桶」區塊的外層容器 */
-        .storage-bins-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px;
-            border: 2px solid #a0d4ff;
-            border-radius: 10px;
-            background-color: #f8fbff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: fit-content;
-        }
-        
         /* ==================================================================== */
-        /* 新增的「新料桶區」樣式，用於 12x5 網格佈局 */
+        /* 新增的「料桶分布圖」樣式，用於 12x5 網格佈局 */
         /* ==================================================================== */
         
         .new-bins-area {
@@ -122,7 +109,7 @@
         
         /* 其他三個屬性的樣式 */
         .bin-info-line {
-            font-size: 0.8em;
+            font-size: 1.0em;
             color: #333;
             line-height: 1.2;
             margin-top: 2px;
@@ -248,29 +235,6 @@
     </style>
 </head>
 <body>
-    <div class="header-title">存放料桶</div>
-
-    <div class="main-layout">
-        <div class="storage-bins-container">
-            <div class="bin-group">
-                <div class="bin-column">
-                    <div class="bin-item" data-bin-name="1-1" data-material="111-1 蓬萊" data-date="7/02" data-vendor="漢鼎">
-                        <h4>1-1</h4>
-                        <span class="bin-material">111-1 蓬萊</span>
-                        <span class="bin-info">7/02</span>
-                        <span class="bin-vendor">漢鼎</span>
-                    </div>
-                    <div class="bin-item" data-bin-name="1-2" data-material="111-1 蓬萊" data-date="7/02" data-vendor="漢鼎">
-                        <h4>1-2</h4>
-                        <span class="bin-material">111-1 蓬萊</span>
-                        <span class="bin-info">7/02</span>
-                        <span class="bin-vendor">漢鼎</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="new-bins-area">
         <div class="header-title">料桶分布圖</div>
         <div class="new-storage-bins-container">
@@ -688,53 +652,7 @@
                 });
             }
         });
-        
-        // 刪除此段：動態生成的元素不需要在 DOMContentLoaded 後再綁定事件
-        /*
-        document.querySelectorAll('.bin-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const binName = item.dataset.binName;
-                
-                // 清空所有輸入框和下拉選單的選擇狀態
-                dateInput.value = '';
-                dateSelect.value = '';
-                googleSheetFields.forEach(field => {
-                    const inputElement = document.getElementById(field.input);
-                    const selectElement = document.getElementById(field.select);
-                    if (inputElement) inputElement.value = '';
-                    if (selectElement) selectElement.value = '';
-                });
-                
-                // 呼叫獨立的函式來生成日期下拉選單
-                populateDateDropdown(10);
-                
-                // 呼叫函式來獲取 Google Sheet 上的選項
-                fetchOptions();
-                
-                modalTitle.textContent = `輸入 ${binName} 的資料`;
-                
-                // 根據按鈕資料自動填入
-                const materialInput = document.getElementById('materialInput');
-                const vendorInput = document.getElementById('vendorInput');
-                const binInput = document.getElementById('binInput');
-        
-                binInput.value = binName;
-                
-                if (item.dataset.date) {
-                    dateInput.value = item.dataset.date;
-                }
-                if (item.dataset.material) {
-                    materialInput.value = item.dataset.material;
-                }
-                if (item.dataset.vendor) {
-                    vendorInput.value = item.dataset.vendor;
-                }
-                
-                modal.style.display = 'flex';
-            });
-        });
-        */
-        
+         
         cancelBtn.addEventListener('click', () => {
             modal.style.display = 'none';
         });
