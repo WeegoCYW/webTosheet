@@ -138,14 +138,14 @@
         
         /* 空料桶樣式保持不變 */
         .empty-bin {
-            background-color: #e9f5ff;
-            border: 1px dashed #a0d4ff;
+            background-color: transparent; /* 設為透明，讓容器背景色透出來 */
+            border: 1px dashed #e0e0e0; /* 調整邊框顏色以融入背景 */
             color: #a0d4ff;
             font-size: 1.2em;
         }
         
         .empty-bin:hover {
-            background-color: #dbeaff;
+            background-color: transparent;
         }
         
         /* ==================================================================== */
@@ -576,6 +576,11 @@
                         binElement.dataset.date = binObject.date;
                         binElement.dataset.vendor = binObject.vendor;
                         
+                        // 只有非空料桶才新增點擊事件
+                        binElement.addEventListener('click', () => {
+                            openModal(binElement);
+                        });
+                        
                     } else {
                         // 儲存格為空，顯示料桶代號
                         binElement = document.createElement('div');
@@ -586,10 +591,10 @@
                     // 所有的料桶元素都應該有 binName
                     binElement.dataset.binName = binObject.binName;
                     
-                    // 新增點擊事件監聽器
-                    binElement.addEventListener('click', () => {
-                        openModal(binElement);
-                    });
+                    // // 新增點擊事件監聽器
+                    // binElement.addEventListener('click', () => {
+                    //     openModal(binElement);
+                    // });
                     
                     // 將元素添加到容器中
                     binMapContainer.appendChild(binElement);
