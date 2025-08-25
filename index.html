@@ -632,6 +632,19 @@
         dateSelect.addEventListener('change', () => {
             dateInput.value = dateSelect.value;
         });
+        // =========================================================
+        // 新增：為所有 Google Sheet 相關下拉式選單添加事件監聽器
+        // =========================================================
+        googleSheetFields.forEach(field => {
+            const inputElement = document.getElementById(field.input);
+            const selectElement = document.getElementById(field.select);
+            
+            if (inputElement && selectElement) {
+                selectElement.addEventListener('change', () => {
+                    inputElement.value = selectElement.value;
+                });
+            }
+        });
         
         // 刪除此段：動態生成的元素不需要在 DOMContentLoaded 後再綁定事件
         /*
