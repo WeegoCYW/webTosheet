@@ -558,7 +558,7 @@
                     
                     // 使用後端傳來的獨立屬性來判斷是否為空料桶
                     // 修正的邏輯：只要 binValue 有內容，就視為非空料桶
-                    if (binObject.binValue) { 
+                    if (binObject && binObject.binValue) { 
                         binElement = document.createElement('div');
                         binElement.className = 'bin-item';
                         
