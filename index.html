@@ -523,44 +523,34 @@
             const numCols = 12; // 12 列
             const numRows = 5;  // 5 行
             
-            // 將後端傳來的扁平資料陣列，轉換成一個易於查詢的單一 Map
-            const dataMap = new Map();
-            binMapData.forEach(row => {
-                // 遍歷每一列中的所有鍵值對
-                Object.entries(row).forEach(([binName, value]) => {
-                    // 確保鍵名有效（例如排除您日誌中的空鍵）
-                    if (binName) {
-                        // 使用 trim() 移除空白，確保準確比對
-                        dataMap.set(binName.trim(), value);
-                    }
-                });
-            });
+            // 修正的邏輯：直接將後端傳來的陣列，轉換為一個以 binName 為鍵的 Map
+            const dataMap = new Map(binMapData.map(item => [item.binName, item.binValue]));
+            
+            // 這個 Map 現在會是這樣的：
+            // Map(60) { '1-1' => '1-1', '2-1' => '2-1', ..., '7-1' => '', ... }
         
             for (let row = 1; row <= numRows; row++) {
                 for (let col = 1; col <= numCols; col++) {
                     const binName = `${col}-${row}`;
+                    
+                    // 透過正確的鍵（料桶代號）來獲取值
                     const binValue = dataMap.get(binName);
         
                     let binElement;
-                    // 判斷料桶是否已填寫：檢查 binValue 是否存在且不為空字串
-                    if (binValue) {
+                    // 判斷料桶是否已填寫：檢查 binValue 是否為空字串
+                    if (binValue) { // 當 binValue 不為空字串或 null 時，此條件成立
                         binElement = document.createElement('div');
-                        binElement.className = 'bin-item'; // 使用已填寫的樣式
-                        
-                        // 這裡只顯示料桶代號，因為後端只傳回一個值
+                        binElement.className = 'bin-item';
                         binElement.innerHTML = `<h4>${binName}</h4>`;
-                        
-                        // 將後端傳回的值儲存在 dataset 中，方便後續使用
                         binElement.dataset.binValue = binValue;
                     } else {
                         binElement = document.createElement('div');
-                        binElement.className = 'empty-bin'; // 使用空的樣式
+                        binElement.className = 'empty-bin';
                         binElement.innerHTML = `<h4>${binName}</h4>`;
                     }
         
                     binElement.dataset.binName = binName;
                     
-                    // 添加點擊事件，當點擊料桶時開啟表單
                     binElement.addEventListener('click', () => {
                         openModal(binElement);
                     });
