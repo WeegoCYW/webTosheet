@@ -118,11 +118,13 @@
             
             /* 關鍵修正：將 span 變成區塊元素，強制其獨佔一行 */
             display: block; 
+            white-space: nowrap; /* 讓文字不換行 */
+            overflow: hidden; /* 超出部分隱藏 */
             text-overflow: ellipsis; /* 超出部分顯示省略號 */
             
             /* 確保內容可以自動換行，不受單行限制 */
-            white-space: normal;
-            word-break: break-all;
+            /*white-space: normal;
+            word-break: break-all;*/
         }
         
         /* 空料桶樣式保持不變 */
