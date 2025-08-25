@@ -121,6 +121,8 @@
             white-space: nowrap; /* 讓文字不換行 */
             overflow: hidden; /* 超出部分隱藏 */
             text-overflow: ellipsis; /* 超出部分顯示省略號 */
+
+            width: 100%; /* 確保 span 填滿父容器寬度，以便 overflow 和 ellipsis 生效 */
             
             /* 確保內容可以自動換行，不受單行限制 */
             /*white-space: normal;
