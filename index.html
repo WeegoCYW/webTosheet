@@ -574,8 +574,17 @@
         
         // =========================================================
         // 新增：用 fetch 從後端獲取地圖資料的函式
+        // 修正：用 fetch 從後端獲取地圖資料的函式，並檢查緩存
         // =========================================================
         function fetchBinMapData() {
+            // 如果已經有緩存資料，直接使用
+            if (cachedBinMapData) {
+                console.log('Using cached bin map data.');
+                generateAndRenderBins(cachedBinMapData);
+                return Promise.resolve(cachedBinMapData);
+            }
+            
+            // 如果沒有緩存資料，才發送請求
             showLoading();
             return fetch(optionsURL)
                 .then(response => {
@@ -585,16 +594,21 @@
                     return response.json();
                 })
                 .then(data => {
+                    console.log('Fetched new bin map data, caching it.');
                     if (data.binMapData) {
                         cachedBinMapData = data.binMapData;
+                        generateAndRenderBins(cachedBinMapData);
                         return data.binMapData;
                     }
                     // 如果後端返回格式不是物件，直接使用 data
                     cachedBinMapData = data;
+                    generateAndRenderBins(cachedBinMapData);
                     return data;
                 })
                 .catch(error => {
                     console.error('Error fetching bin map data:', error);
+                    alert('無法從 Google 表單載入地圖資料，將顯示空白地圖。');
+                    generateAndRenderBins(); // 呼叫無參數版本，生成空網格
                     throw error;
                 })
                 .finally(() => {
