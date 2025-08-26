@@ -520,6 +520,7 @@
                     
                     // 透過 positionName 從 dataMap 中獲取整個物件
                     const binObject = dataMap.get(positionName) || {
+                        positionName: positionName, // 確保空料桶也有 positionName
                         binName: '',
                         item: '',
                         date: '',
@@ -543,6 +544,7 @@
                         `;
                         
                         // 儲存原始資料以供彈出視窗使用
+                        binElement.dataset.positionName = binObject.positionName; // 將 positionName 儲存為 data-position-name
                         binElement.dataset.binName = binObject.binName;
                         binElement.dataset.material = binObject.item;
                         binElement.dataset.date = binObject.date;
@@ -558,6 +560,7 @@
                         binElement = document.createElement('div');
                         binElement.className = 'empty-bin';
                         binElement.innerHTML = `<h4>${binObject.binName}</h4>`;
+                        binElement.dataset.positionName = binObject.positionName;// 空料桶也需要 positionName 來定位
                     }
                     
                     // 所有的料桶元素都應該有 binName
@@ -572,6 +575,50 @@
                     binMapContainer.appendChild(binElement);
                 }
             }
+        }
+
+        // =========================================================
+        // 新增：用來更新地圖快取並重新渲染地圖的函式
+        // =========================================================
+        function updateBinMapCacheAndRender(submittedData) {
+            if (!cachedBinMapData) {
+                // 如果地圖快取還沒有資料，先從後端獲取，再執行更新
+                console.log('Cache is empty, fetching from backend before update.');
+                fetchBinMapData().then(() => {
+                    updateBinMapCacheAndRender(submittedData);
+                });
+                return;
+            }
+        
+            const positionToUpdate = submittedData.positionName;
+            let binToUpdate = cachedBinMapData.find(bin => bin.positionName === positionToUpdate);
+            
+            // 統一所有需要更新的屬性
+            const updateProperties = {
+                binName: submittedData.binName,
+                item: submittedData.item,
+                date: submittedData.date,
+                vendor: submittedData.vendor,
+                binValue: submittedData.binValue || 'Filled'
+            };
+        
+            if (binToUpdate) {
+                // 如果找到了，只更新這些屬性，不碰 positionName
+                console.log(`Updating cache for bin at position: ${positionToUpdate}`);
+                Object.assign(binToUpdate, updateProperties);
+            } else {
+                // 如果找不到，新增一個完整的物件
+                console.log(`Adding new bin data to cache at position: ${positionToUpdate}`);
+                const newBinData = {
+                    positionName: positionToUpdate,
+                    ...updateProperties
+                };
+                cachedBinMapData.push(newBinData);
+            }
+        
+            // 重新渲染地圖，使用已更新的快取
+            console.log('Re-rendering map with updated cache.');
+            generateAndRenderBins(cachedBinMapData);
         }
         
         // =========================================================
