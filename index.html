@@ -579,50 +579,6 @@
                 }
             }
         }
-
-        // =========================================================
-        // 新增：用來更新地圖快取並重新渲染地圖的函式
-        // =========================================================
-        function updateBinMapCacheAndRender(submittedData) {
-            if (!cachedBinMapData) {
-                // 如果地圖快取還沒有資料，先從後端獲取，再執行更新
-                console.log('Cache is empty, fetching from backend before update.');
-                fetchBinMapData().then(() => {
-                    updateBinMapCacheAndRender(submittedData);
-                });
-                return;
-            }
-        
-            const positionToUpdate = submittedData.positionName;
-            let binToUpdate = cachedBinMapData.find(bin => bin.positionName === positionToUpdate);
-            
-            // 統一所有需要更新的屬性
-            const updateProperties = {
-                binName: submittedData.binName,
-                item: submittedData.item,
-                date: submittedData.date,
-                vendor: submittedData.vendor,
-                binValue: submittedData.binValue || 'Filled'
-            };
-        
-            if (binToUpdate) {
-                // 如果找到了，只更新這些屬性，不碰 positionName
-                console.log(`Updating cache for bin at position: ${positionToUpdate}`);
-                Object.assign(binToUpdate, updateProperties);
-            } else {
-                // 如果找不到，新增一個完整的物件
-                console.log(`Adding new bin data to cache at position: ${positionToUpdate}`);
-                const newBinData = {
-                    positionName: positionToUpdate,
-                    ...updateProperties
-                };
-                cachedBinMapData.push(newBinData);
-            }
-        
-            // 重新渲染地圖，使用已更新的快取
-            console.log('Re-rendering map with updated cache.');
-            generateAndRenderBins(cachedBinMapData);
-        }
         
         // =========================================================
         // 新增：用 fetch 從後端獲取地圖資料的函式
