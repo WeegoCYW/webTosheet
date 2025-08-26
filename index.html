@@ -321,6 +321,9 @@
                     <label for="notesTextarea">備註</label>
                     <textarea id="notesTextarea" name="備註" rows="4" placeholder="在此輸入備註"></textarea>
                 </div>
+                
+                <input type="hidden" id="positionNameInput" name="positionName"> 
+                
                 <div class="form-actions">
                     <button type="button" id="cancelBtn">取消</button>
                     <button type="submit" id="submitBtn">完成</button>
@@ -687,9 +690,11 @@
             fetchOptions();
             
             const binName = itemElement.dataset.binName;
+            const positionName = itemElement.dataset.positionName; //從點擊的元素 dataset 中獲取 positionName 例如: "1-1"
             modalTitle.textContent = `輸入 ${binName} 的資料`;
             
             document.getElementById('binInput').value = binName;
+            document.getElementById('positionNameInput').value = positionName; // 隱藏欄位
             
             if (itemElement.dataset.date) {
                 dateInput.value = itemElement.dataset.date;
