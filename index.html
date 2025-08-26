@@ -573,6 +573,48 @@
                 }
             }
         }
+
+        // =========================================================
+        // 新增：用來更新地圖快取並重新渲染地圖的函式
+        // =========================================================
+        function updateBinMapCacheAndRender(submittedData) {
+            if (!cachedBinMapData) {
+                // 如果地圖快取還沒有資料，先從後端獲取
+                console.log('Cache is empty, fetching from backend...');
+                fetchBinMapData();
+                return;
+            }
+        
+            const binName = submittedData.binName;
+        
+            // 找到並更新快取中的資料
+            let binToUpdate = cachedBinMapData.find(bin => bin.positionName === binName);
+        
+            if (binToUpdate) {
+                // 如果找到了，更新其值
+                console.log(`Updating cache for bin: ${binName}`);
+                binToUpdate.binValue = 'Filled'; // 假設只要有資料就算 filled
+                binToUpdate.item = submittedData.item;
+                binToUpdate.date = submittedData.date;
+                binToUpdate.vendor = submittedData.vendor;
+            } else {
+                // 如果找不到，新增一個新的物件
+                console.log(`Adding new bin data to cache: ${binName}`);
+                const newBin = {
+                    positionName: binName,
+                    binName: binName,
+                    item: submittedData.item,
+                    date: submittedData.date,
+                    vendor: submittedData.vendor,
+                    binValue: 'Filled'
+                };
+                cachedBinMapData.push(newBin);
+            }
+            
+            // 重新渲染地圖，使用已更新的快取
+            console.log('Re-rendering map with updated cache.');
+            generateAndRenderBins(cachedBinMapData);
+        }
         
         // =========================================================
         // 新增：用 fetch 從後端獲取地圖資料的函式
@@ -697,7 +739,7 @@
                 dataForm.dataset.submitting = 'false';
 
                 //提交後，重設mapdata
-                cachedBinMapData = null;
+                //cachedBinMapData = null;
                 
                 // 提交成功後，重新獲取並渲染地圖資料
                 fetchBinMapData()
