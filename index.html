@@ -585,10 +585,10 @@
                 return;
             }
         
-            const binName = submittedData.binName;
+            const positionToUpdate = submittedData.positionName;
         
             // 找到並更新快取中的資料
-            let binToUpdate = cachedBinMapData.find(bin => bin.positionName === positionName);
+            let binToUpdate = cachedBinMapData.find(bin => bin.positionName === positionToUpdate);
         
             if (binToUpdate) {
                 // 如果找到了，更新其值
@@ -598,10 +598,12 @@
                 binToUpdate.date = submittedData.date;
                 binToUpdate.vendor = submittedData.vendor;
                 binToUpdate.binName = submittedData.binName;
+                positionName: positionToUpdate;
             } else {
                 // 如果找不到，新增一個新的物件
                 console.log(`Adding new bin data to cache: ${binName}`);
                 const newBin = {
+                    positionName: positionToUpdate,
                     binName: submittedData.binName,
                     item: submittedData.item,
                     date: submittedData.date,
@@ -744,6 +746,7 @@
         
                 // 組合成地圖資料格式
                 const submittedData = {
+                    positionName: binName, 
                     binName: binName,
                     item: material,
                     date: date,
