@@ -602,8 +602,8 @@
                 // 如果找不到，新增一個新的物件
                 console.log(`Adding new bin data to cache: ${binName}`);
                 const newBin = {
-                    positionName: binName,
-                    binName: binName,
+                    positionName: positionName,
+                    binName: submittedData.binName,
                     item: submittedData.item,
                     date: submittedData.date,
                     vendor: submittedData.vendor,
