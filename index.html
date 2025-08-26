@@ -573,48 +573,6 @@
                 }
             }
         }
-
-        // =========================================================
-        // 新增：用來更新地圖快取並重新渲染地圖的函式
-        // =========================================================
-        function updateBinMapCacheAndRender(submittedData) {
-            if (!cachedBinMapData) {
-                // 如果地圖快取還沒有資料，先從後端獲取
-                console.log('Cache is empty, fetching from backend...');
-                fetchBinMapData();
-                return;
-            }
-        
-            const binName = submittedData.binName;
-        
-            // 找到並更新快取中的資料
-            let binToUpdate = cachedBinMapData.find(bin => bin.positionName === binName);
-        
-            if (binToUpdate) {
-                // 如果找到了，更新其值
-                console.log(`Updating cache for bin: ${binName}`);
-                binToUpdate.binValue = 'Filled'; // 假設只要有資料就算 filled
-                binToUpdate.item = submittedData.item;
-                binToUpdate.date = submittedData.date;
-                binToUpdate.vendor = submittedData.vendor;
-                binToUpdate.binName = submittedData.binName;
-            } else {
-                // 如果找不到，新增一個新的物件
-                console.log(`Adding new bin data to cache: ${binName}`);
-                const newBin = {
-                    binName: submittedData.binName,
-                    item: submittedData.item,
-                    date: submittedData.date,
-                    vendor: submittedData.vendor,
-                    binValue: 'Filled'
-                };
-                cachedBinMapData.push(newBin);
-            }
-            
-            // 重新渲染地圖，使用已更新的快取
-            console.log('Re-rendering map with updated cache.');
-            generateAndRenderBins(cachedBinMapData);
-        }
         
         // =========================================================
         // 新增：用 fetch 從後端獲取地圖資料的函式
@@ -735,41 +693,23 @@
                 loadingOverlay.style.display = 'none';
                 alert('資料已成功傳送！');
                 modal.style.display = 'none';
-
-                // 提交後，獲取表單的最新資料
-                const binName = document.getElementById('binInput').value;
-                const material = document.getElementById('materialSelect').value;
-                const date = document.getElementById('dateSelect').value;
-                const vendor = document.getElementById('vendorSelect').value;
-        
-                // 組合成地圖資料格式
-                const submittedData = {
-                    binName: binName,
-                    item: material,
-                    date: date,
-                    vendor: vendor,
-                    binValue: 'Filled' // 假設提交後就不是空的
-                };
-        
-                // 更新地圖快取並渲染地圖
-                updateBinMapCacheAndRender(submittedData);
                 dataForm.reset();
                 dataForm.dataset.submitting = 'false';
 
                 //提交後，重設mapdata
-                //cachedBinMapData = null;
+                cachedBinMapData = null;
                 
-                // // 提交成功後，重新獲取並渲染地圖資料
-                // fetchBinMapData()
-                //     .then(binMapData => {
-                //         generateAndRenderBins(binMapData);
-                //     })
-                //     .catch(error => {
-                //         console.error('資料已成功提交，但無法重新載入地圖。', error);
-                //         alert('資料已成功提交，但無法重新載入地圖。');
-                //         // 即使重新載入失敗，也要至少渲染空地圖
-                //         generateAndRenderBins();
-                //     });
+                // 提交成功後，重新獲取並渲染地圖資料
+                fetchBinMapData()
+                    .then(binMapData => {
+                        generateAndRenderBins(binMapData);
+                    })
+                    .catch(error => {
+                        console.error('資料已成功提交，但無法重新載入地圖。', error);
+                        alert('資料已成功提交，但無法重新載入地圖。');
+                        // 即使重新載入失敗，也要至少渲染空地圖
+                        generateAndRenderBins();
+                    });
             }
         });
         
