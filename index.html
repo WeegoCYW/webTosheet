@@ -695,6 +695,9 @@
                 modal.style.display = 'none';
                 dataForm.reset();
                 dataForm.dataset.submitting = 'false';
+
+                //提交後，重設mapdata
+                cachedBinMapData = null;
                 
                 // 提交成功後，重新獲取並渲染地圖資料
                 fetchBinMapData()
