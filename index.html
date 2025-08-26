@@ -588,7 +588,7 @@
             const binName = submittedData.binName;
         
             // 找到並更新快取中的資料
-            let binToUpdate = cachedBinMapData.find(bin => bin.positionName === binName);
+            let binToUpdate = cachedBinMapData.find(bin => bin.positionName === positionName);
         
             if (binToUpdate) {
                 // 如果找到了，更新其值
@@ -602,7 +602,6 @@
                 // 如果找不到，新增一個新的物件
                 console.log(`Adding new bin data to cache: ${binName}`);
                 const newBin = {
-                    positionName: positionName,
                     binName: submittedData.binName,
                     item: submittedData.item,
                     date: submittedData.date,
