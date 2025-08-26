@@ -735,6 +735,24 @@
                 loadingOverlay.style.display = 'none';
                 alert('資料已成功傳送！');
                 modal.style.display = 'none';
+
+                // 提交後，獲取表單的最新資料
+                const binName = document.getElementById('binInput').value;
+                const material = document.getElementById('materialSelect').value;
+                const date = document.getElementById('dateSelect').value;
+                const vendor = document.getElementById('vendorSelect').value;
+        
+                // 組合成地圖資料格式
+                const submittedData = {
+                    binName: binName,
+                    item: material,
+                    date: date,
+                    vendor: vendor,
+                    binValue: 'Filled' // 假設提交後就不是空的
+                };
+        
+                // 更新地圖快取並渲染地圖
+                updateBinMapCacheAndRender(submittedData);
                 dataForm.reset();
                 dataForm.dataset.submitting = 'false';
 
