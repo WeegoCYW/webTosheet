@@ -759,17 +759,17 @@
                 //提交後，重設mapdata
                 //cachedBinMapData = null;
                 
-                // 提交成功後，重新獲取並渲染地圖資料
-                fetchBinMapData()
-                    .then(binMapData => {
-                        generateAndRenderBins(binMapData);
-                    })
-                    .catch(error => {
-                        console.error('資料已成功提交，但無法重新載入地圖。', error);
-                        alert('資料已成功提交，但無法重新載入地圖。');
-                        // 即使重新載入失敗，也要至少渲染空地圖
-                        generateAndRenderBins();
-                    });
+                // // 提交成功後，重新獲取並渲染地圖資料
+                // fetchBinMapData()
+                //     .then(binMapData => {
+                //         generateAndRenderBins(binMapData);
+                //     })
+                //     .catch(error => {
+                //         console.error('資料已成功提交，但無法重新載入地圖。', error);
+                //         alert('資料已成功提交，但無法重新載入地圖。');
+                //         // 即使重新載入失敗，也要至少渲染空地圖
+                //         generateAndRenderBins();
+                //     });
             }
         });
         
